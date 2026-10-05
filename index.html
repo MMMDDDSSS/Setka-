@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Торговые калькуляторы — Усреднение / Сетка</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#0A0D12;
+  --panel:#11151C;
+  --panel-2:#161B24;
+  --border:#232A38;
+  --text:#E7EAF0;
+  --muted:#7C8494;
+  --long:#22C3A6;
+  --short:#F2545B;
+  --entry:#38BDF8;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;
+  overflow:hidden;
+  transition:background .4s ease;
+}
+.wrap{height:100vh;max-width:1600px;margin:0 auto;padding:24px 48px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}
+
+/* header */
+.hdr{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;}
+.hdr-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.hdr h1{font-size:18px;font-weight:700;letter-spacing:.02em;margin:0;color:var(--text);}
+.hdr h1 span{color:var(--entry);}
+.instr-tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:3px;}
+.instr-tab{
+  padding:6px 11px;border-radius:6px;border:none;background:transparent;color:var(--muted);
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:5px;
+}
+.instr-tab.active{color:#fff;}
+.instr-tab:hover:not(.active){color:var(--text);}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.toggle-label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;user-select:none;}
+.toggle-label input{cursor:pointer;}
+.reset-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;
+  padding:6px 10px;font-family:'Space Grotesk',sans-serif;font-size:11px;cursor:pointer;
+}
+.reset-btn:hover{border-color:var(--short);color:var(--short);}
+
+/* main grid */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:400px 1fr;grid-template-rows:1fr;gap:12px;}
+.col{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%;}
+
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;}
+.panel-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 7px;}
+
+/* config grid */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
+.field input{
+  width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+}
+.field input:focus{outline:none;border-color:var(--entry);}
+.dir-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.dir-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11px;}
+.dir-btn.active.long{background:rgba(34,195,166,.18);color:var(--long);}
+.dir-btn.active.short{background:rgba(242,84,91,.18);color:var(--short);}
+.dynamic-note{margin-top:6px;font-size:9px;color:#F5A623;line-height:1.35;}
+.step-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.step-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:10px;}
+.step-btn:first-child{border-left:none;}
+.step-btn.active{background:rgba(56,189,248,.18);color:var(--entry);}
+
+/* entries */
+.entries-panel{display:flex;flex-direction:column;}
+.entries-head, .entry-row{display:grid;grid-template-columns:1fr 1fr 24px;gap:6px;align-items:center;}
+.entries-head{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;}
+.entries-scroll{overflow-y:auto;max-height:235px;padding-right:2px;}
+.entry-row{margin-bottom:5px;}
+.entry-row input{
+  background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;width:100%;
+}
+.entry-row input:focus{outline:none;border-color:var(--entry);}
+.rm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;width:24px;height:26px;cursor:pointer;font-size:12px;}
+.rm-btn:hover{border-color:var(--short);color:var(--short);}
+.add-btn{
+  margin-top:3px;background:none;border:1px dashed var(--border);color:var(--entry);
+  border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  font-size:11px;font-weight:600;width:100%;
+}
+.add-btn:hover{border-color:var(--entry);background:rgba(56,189,248,.07);}
+
+/* reverse calc */
+.reverse-row{display:flex;gap:6px;align-items:end;flex-wrap:wrap;}
+.reverse-row .field{flex:0 0 100px;}
+.reverse-result{flex:1;font-size:12px;color:var(--muted);min-width:90px;}
+.reverse-result b{display:block;font-size:19px;color:var(--text);}
+.reverse-result.err b{color:var(--short);font-size:12px;}
+.apply-btn{
+  background:var(--entry);border:none;color:#04222E;border-radius:6px;padding:6px 10px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.apply-btn:disabled{opacity:.35;cursor:not-allowed;}
+.clear-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 8px;font-size:10px;cursor:pointer;font-family:'Space Grotesk',sans-serif;}
+.clear-btn:hover{border-color:var(--short);color:var(--short);}
+
+.rr-toggles{display:flex;flex-wrap:wrap;gap:5px;}
+.rr-toggle{display:flex;align-items:center;gap:4px;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:4px 7px;cursor:pointer;user-select:none;font-size:10px;font-weight:600;color:var(--muted);}
+.rr-toggle input{cursor:pointer;accent-color:var(--dot,var(--entry));}
+.rr-toggle .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.rr-toggle.off{opacity:.4;}
+
+/* right column / ladder */
+.right-split{display:grid;grid-template-columns:1fr 300px;gap:12px;flex:1;min-height:0;}
+.ladder-panel{min-height:0;display:flex;flex-direction:column;}
+.ladder-box{position:relative;flex:1;min-height:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);}
+.tv-zone-bg{position:absolute;left:20%;right:20%;}
+.tv-line{position:absolute;left:20%;right:20%;border-top:1px solid rgba(255,255,255,.14);}
+.tv-line.entry-line{border-top-style:dashed;}
+.tv-pill{position:absolute;top:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:15px;font-weight:700;white-space:nowrap;}
+.tv-pill.price{left:20%;transform:translate(-50%,-50%);}
+.tv-pill.center{left:50%;transform:translate(-50%,-50%);}
+.tv-pill.value{right:20%;transform:translate(50%,-50%);}
+
+/* history — narrow side column, split: history (top, capped) + deposit levels (rest) */
+.history-panel{min-height:0;display:flex;flex-direction:column;gap:8px;}
+.hist-top{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;}
+.history-list{max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.deposit-levels{flex:1;min-height:0;display:flex;flex-direction:column;border-top:1px solid var(--border);padding-top:8px;gap:6px;}
+.deposit-levels-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.dep-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;}
+.dep-row .dep-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text);}
+.dep-row .dep-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dep-row .dep-val{font-size:15px;font-weight:700;}
+
+/* results */
+.results-panel{flex:0 0 auto;}
+.result-top{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;}
+.stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.stat-val{font-size:23px;font-weight:700;color:var(--text);}
+.stat-val.big-entry{font-size:34px;line-height:1.1;white-space:nowrap;}
+.stat-val.risk{color:var(--short);}
+.stat-val.comm{color:#F5A623;}
+.rr-table{width:100%;border-collapse:collapse;}
+.rr-table th{text-align:left;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 6px 6px;font-weight:600;}
+.rr-table td{padding:8px 6px;border-top:1px solid var(--border);font-size:16px;font-weight:600;}
+.rr-table tr td:first-child{font-weight:600;}
+.rr-table .net{color:var(--long);font-weight:600;}
+.rr-table .muted-cell{color:var(--muted);}
+.empty-state{color:var(--muted);font-size:12px;text-align:center;padding:14px 0;}
+
+/* history */
+.hist-save-row{display:flex;gap:8px;margin-bottom:8px;}
+.hist-save-row input{
+  flex:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:7px 9px;font-family:'Space Grotesk',sans-serif;font-size:12px;
+}
+.hist-save-row input:focus{outline:none;border-color:var(--entry);}
+.hist-item{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;font-size:11px;
+}
+.hist-item-main{display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+.hist-item-main b{font-size:11px;color:var(--text);}
+.hist-item-main span{color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.hist-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 7px;font-size:9px;cursor:pointer;font-family:'Space Grotesk',sans-serif;flex:1;}
+.hist-btn.load:hover{border-color:var(--entry);color:var(--entry);}
+.hist-btn.upd:hover{border-color:#F5A623;color:#F5A623;}
+.hist-btn.del:hover{border-color:var(--short);color:var(--short);}
+
+@media (max-width:900px){
+  body{overflow:auto;}
+  .wrap{height:auto;overflow:visible;}
+  .main{grid-template-columns:1fr;}
+  .result-top{grid-template-columns:1fr 1fr;}
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#0A0D12;
+  --panel:#11151C;
+  --panel-2:#161B24;
+  --border:#232A38;
+  --text:#E7EAF0;
+  --muted:#7C8494;
+  --long:#22C3A6;
+  --short:#F2545B;
+  --entry:#38BDF8;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;
+  overflow:hidden;
+  transition:background .4s ease;
+}
+.wrap{height:100vh;max-width:1600px;margin:0 auto;padding:20px 20px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}
+
+/* header */
+.hdr{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;}
+.hdr-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.hdr h1{font-size:18px;font-weight:700;letter-spacing:.02em;margin:0;color:var(--text);}
+.hdr h1 span{color:var(--entry);}
+.instr-tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:3px;flex-wrap:wrap;}
+.instr-tab{
+  padding:6px 11px;border-radius:6px;border:none;background:transparent;color:var(--muted);
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:5px;
+}
+.instr-tab.active{color:#fff;}
+.instr-tab:hover:not(.active){color:var(--text);}
+.hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.toggle-label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;user-select:none;}
+.toggle-label input{cursor:pointer;}
+.reset-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;
+  padding:6px 10px;font-family:'Space Grotesk',sans-serif;font-size:11px;cursor:pointer;
+}
+.reset-btn:hover{border-color:var(--short);color:var(--short);}
+
+/* main grid */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:400px 1fr;grid-template-rows:1fr;gap:12px;}
+.col{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%;}
+
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;}
+.panel-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 7px;}
+
+/* fields */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em;}
+.field input{
+  width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;padding:6px 8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;
+}
+.field input:focus{outline:none;border-color:var(--entry);}
+.dynamic-note{margin-top:6px;font-size:9px;color:#F5A623;line-height:1.35;}
+.step-toggle{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.step-btn{flex:1;padding:5px 0;background:var(--panel-2);color:var(--muted);border:none;border-left:1px solid var(--border);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:10px;}
+.step-btn:first-child{border-left:none;}
+.step-btn.active{background:rgba(56,189,248,.18);color:var(--entry);}
+
+.apply-btn{
+  background:var(--entry);border:none;color:#04222E;border-radius:6px;padding:7px 10px;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+}
+.apply-btn:hover{filter:brightness(1.08);}
+
+/* grid panel */
+.grid-panel{flex:1;min-height:0;display:flex;flex-direction:column;}
+.grid-fields{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.grid-fields .field:last-child{grid-column:1/-1;}
+.grid-levels-block{margin-top:8px;flex:1;min-height:0;display:flex;flex-direction:column;}
+.grid-levels-head{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:4px 2px;cursor:pointer;}
+.levels-head-row{display:grid;grid-template-columns:20px 1fr 1fr 22px;gap:6px;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:2px 0 5px;}
+.grid-levels-list{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;overflow-y:auto;padding-right:2px;}
+.grid-levels-list.collapsed{display:none;}
+.grid-level-row{display:grid;grid-template-columns:20px 1fr 1fr 22px;gap:6px;align-items:center;}
+.grid-level-row input[type="checkbox"]{cursor:pointer;width:16px;height:16px;}
+.grid-level-row input[type="number"]{
+  background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;padding:5px 7px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;width:100%;
+}
+.grid-level-row input[type="number"]:focus{outline:none;border-color:var(--entry);}
+.grid-level-row.inactive{opacity:.4;}
+.grid-level-row .rm-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;width:22px;height:26px;cursor:pointer;font-size:12px;padding:0;}
+.grid-level-row .rm-btn:hover{border-color:var(--short);color:var(--short);}
+.add-btn{
+  margin-top:6px;background:none;border:1px dashed var(--border);color:var(--entry);
+  border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+  font-size:11px;font-weight:600;width:100%;
+}
+.add-btn:hover{border-color:var(--entry);background:rgba(56,189,248,.07);}
+
+/* ladder */
+.right-col{min-height:0;}
+.right-split{display:grid;grid-template-columns:1fr 300px;gap:12px;flex:1;min-height:0;}
+.history-panel{min-height:0;display:flex;flex-direction:column;}
+.hist-save-row{display:flex;gap:8px;margin-bottom:8px;}
+.hist-save-row input{
+  flex:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:7px 9px;font-family:'Space Grotesk',sans-serif;font-size:12px;
+}
+.hist-save-row input:focus{outline:none;border-color:var(--entry);}
+.history-list{flex:1;min-height:0;display:flex;flex-direction:column;gap:5px;overflow-y:auto;}
+.hist-item{
+  display:flex;flex-direction:column;gap:5px;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:7px;padding:7px 9px;font-size:11px;
+}
+.hist-item-main{display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+.hist-item-main b{font-size:11px;color:var(--text);}
+.hist-item-main span{color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-item-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.hist-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 7px;font-size:9px;cursor:pointer;font-family:'Space Grotesk',sans-serif;flex:1;}
+.hist-btn.load:hover{border-color:var(--entry);color:var(--entry);}
+.hist-btn.upd:hover{border-color:#F5A623;color:#F5A623;}
+.hist-btn.del:hover{border-color:var(--short);color:var(--short);}
+.ladder-panel{flex:1;min-height:0;display:flex;flex-direction:column;}
+.ladder-box{position:relative;flex:1;min-height:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);}
+.tv-zone-bg{position:absolute;left:20%;right:20%;}
+.tv-line{position:absolute;left:20%;right:20%;border-top:1px solid rgba(255,255,255,.14);}
+.tv-line.entry-line{border-top-style:dashed;}
+.tv-line.draggable{cursor:grab;}
+.tv-line.draggable:active{cursor:grabbing;}
+.tv-pill{position:absolute;top:0;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:15px;font-weight:700;white-space:nowrap;}
+.tv-pill.price{left:20%;transform:translate(-50%,-50%);}
+.tv-pill.center{left:50%;transform:translate(-50%,-50%);}
+.tv-pill.value{right:20%;transform:translate(50%,-50%);}
+.tv-pill.draggable{cursor:grab;user-select:none;}
+.tv-pill.draggable:active{cursor:grabbing;}
+
+/* results */
+.results-panel{flex:0 0 auto;}
+.result-top{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
+.stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.stat-val{font-size:23px;font-weight:700;color:var(--text);}
+.stat-val.big-entry{font-size:34px;line-height:1.1;white-space:nowrap;}
+.stat-val.risk{color:var(--short);}
+.stat-val.profit{color:var(--long);}
+.empty-state{color:var(--muted);font-size:12px;text-align:center;padding:14px 0;}
+
+@media (max-width:900px){
+  body{overflow:auto;}
+  .wrap{height:auto;overflow:visible;}
+  .main{grid-template-columns:1fr;}
+  .right-split{grid-template-columns:1fr;}
+  .result-top{grid-template-columns:1fr 1fr;}
+}
+
+
+/* ==== unified shell ==== */
+#app-shell{height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.mode-nav{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:10px 20px 0;}
+.mode-nav .mode-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-right:4px;}
+.mode-tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:3px;}
+.mode-tab{padding:7px 16px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.mode-tab.active{background:var(--entry);color:#04222E;}
+.mode-tab:hover:not(.active){color:var(--text);}
+.view-content{flex:1;min-height:0;}
+.view{height:100%;}
+.view.hidden{display:none;}
+.view .wrap{height:100%;}
+@media (max-width:900px){
+  #app-shell{height:auto;overflow:visible;}
+  .view .wrap{height:auto;}
+}
+
+.tv-line.draggable,.tv-pill.draggable{touch-action:none;cursor:grab;}
+.hdr .rr-toggles{flex:1 1 auto;justify-content:center;}
+.entries-panel{flex:1;min-height:0;}
+.entries-panel .entries-scroll{flex:1;min-height:60px;max-height:none;}
+.entries-panel .entries-head,.entries-panel .entry-row{grid-template-columns:1fr 1fr 22px;}
+.entries-panel .entry-row input{font-size:13px;padding:5px 7px;}
+.entries-panel .rm-btn{width:22px;padding:0;}
+.ladder-box{overflow-y:auto;overflow-x:hidden;}
+.tv-pill.compact{font-size:11px;padding:1px 7px;}
+.hist-io{display:flex;gap:6px;margin-bottom:6px;}
+.hist-tag{font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-left:6px;font-weight:600;}
+</style>
+</head>
+<body>
+<div id="app-shell">
+  <div class="mode-nav">
+    <span class="mode-title">Калькулятор:</span>
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="modeAvgBtn">Усреднение</button>
+      <button class="mode-tab" id="modeGridBtn">Сетка</button>
+    </div>
+  </div>
+  <div class="view-content">
+    <div id="view-avg" class="view">
+
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Усредн<span>ение</span></h1>
+      <div class="instr-tabs" id="a-instrTabs"></div>
+    </div>
+    <div class="rr-toggles" id="a-rrToggles"></div>
+    <div class="hdr-right">
+      <label class="toggle-label"><input type="checkbox" id="a-dirBgToggle" checked> фон по направлению</label>
+      <button class="reset-btn" id="a-copyBtn" title="Копировать расчёт в буфер">Копировать</button>
+      <button class="reset-btn" id="a-syncBtn" title="Перенести входы и стоп в «Сетку»">→ В сетку</button>
+      <button class="reset-btn" id="a-resetBtn">Сбросить актив</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="col">
+      <div class="panel">
+        <p class="panel-title">Параметры сделки</p>
+        <div class="cfg-grid">
+          <div class="field"><label>Депозит ($)</label><input type="number" id="a-deposit" step="100"></div>
+          <div class="field"><label>Направление</label>
+            <div class="dir-toggle"><button class="dir-btn long" id="a-dirLong">Лонг</button><button class="dir-btn short" id="a-dirShort">Шорт</button></div>
+          </div>
+          <div class="field"><label id="a-pointValueLabel">$/пункт/лот</label><input type="number" id="a-pointValue" step="any"></div>
+          <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="a-commission" step="any"></div>
+          <div class="field" style="grid-column:1/-1;">
+            <label>Шаг цены (стрелками ↑↓ в полях цены)</label>
+            <div class="step-toggle" id="a-stepToggle"></div>
+          </div>
+        </div>
+        <div id="a-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия плавает от курса EURUSD — сверь значение в терминале.</div>
+        <div id="a-warn" class="dynamic-note" style="display:none;color:var(--short);"></div>
+      </div>
+
+      <div class="panel entries-panel">
+        <p class="panel-title">Входы</p>
+        <div class="field" style="margin-bottom:8px;"><label>Стоп (SL)</label><input type="number" id="a-slPrice" step="any"></div>
+        <div class="entries-head"><span>Цена</span><span>Лоты</span><span></span></div>
+        <div class="entries-scroll"><div id="a-entriesList"></div></div>
+        <button class="add-btn" id="a-addEntry">+ добавить вход</button>
+        <button class="grid-levels-head" id="a-reverseToggle" style="margin-top:6px;"><span>Риск → стоп / таргет</span><span id="a-reverseCaret">▸</span></button>
+        <div id="a-reverseBlock" style="display:none;max-height:50%;overflow-y:auto;">
+        <div class="reverse-row">
+          <div class="field"><label>Риск ($)</label><input type="number" id="a-targetRisk" step="any" placeholder="5000"></div>
+          <div class="reverse-result" id="a-reverseResult">—</div>
+          <button class="apply-btn" id="a-applyReverse" disabled>Применить</button>
+        </div>
+        <div class="reverse-row" style="margin-top:6px;">
+          <div class="field"><label>Цена стопа</label><input type="number" id="a-stopPriceInput" step="any" placeholder="1.15200"></div>
+          <div class="reverse-result" id="a-stopPriceResult">—</div>
+          <button class="apply-btn" id="a-applyStopPrice" disabled>Применить</button>
+        </div>
+        <div class="reverse-row" style="margin-top:8px;">
+          <div class="field"><label>Таргет ($)</label><input type="number" id="a-targetProfit" step="any" placeholder="12000"></div>
+          <div class="reverse-result" id="a-targetResult">—</div>
+          <button class="apply-btn" id="a-applyTarget" disabled>Применить</button>
+          <button class="clear-btn" id="a-clearTarget" style="display:none;">×</button>
+        </div>
+        <div class="reverse-row" style="margin-top:6px;">
+          <div class="field"><label>Цена таргета</label><input type="number" id="a-targetPriceInput" step="any" placeholder="1.16000"></div>
+          <div class="reverse-result" id="a-targetPriceResult">—</div>
+          <button class="apply-btn" id="a-applyTargetPrice" disabled>Применить</button>
+        </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col">
+      <div class="right-split">
+        <div class="panel ladder-panel" id="a-ladderPanel" style="display:none;">
+          <p class="panel-title">Лестница цен</p>
+          <div class="ladder-box" id="a-ladderBox"></div>
+        </div>
+
+        <div class="panel history-panel">
+          <div class="hist-top">
+            <p class="panel-title">История расчётов</p>
+            <div class="hist-save-row">
+              <input type="text" id="a-saveNote" placeholder="Заметка">
+              <button class="apply-btn" id="a-saveCalcBtn">Сохранить</button>
+            </div>
+            <div class="hist-io"><button class="hist-btn" data-hio="export">⬇ Экспорт</button><button class="hist-btn" data-hio="import">⬆ Импорт</button></div>
+            <div id="a-historyList" class="history-list"></div>
+          </div>
+          <div class="deposit-levels">
+            <p class="panel-title">Депозит по уровням</p>
+            <div id="a-depositLevelsList" class="deposit-levels-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel results-panel" id="a-resultsPanel">
+        <p class="panel-title">Результат</p>
+        <div id="a-resultsBody"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+    </div>
+    <div id="view-grid" class="view hidden">
+
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>Сет<span>ка</span></h1>
+      <div class="instr-tabs" id="g-instrTabs"></div>
+    </div>
+    <div class="rr-toggles" id="g-rrToggles"></div>
+    <div class="hdr-right">
+      <label class="toggle-label"><input type="checkbox" id="g-dirBgToggle" checked> фон по направлению</label>
+      <button class="reset-btn" id="g-copyBtn" title="Копировать расчёт в буфер">Копировать</button>
+      <button class="reset-btn" id="g-syncBtn" title="Перенести уровни и стоп в «Усреднение»">→ В усреднение</button>
+      <button class="reset-btn" id="g-resetBtn">Сбросить актив</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="col">
+      <div class="panel">
+        <p class="panel-title">Параметры</p>
+        <div class="cfg-grid">
+          <div class="field"><label id="g-pointValueLabel">$/пункт/лот</label><input type="number" id="g-pointValue" step="any"></div>
+          <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="g-commission" step="any"></div>
+          <div class="field" style="grid-column:1/-1;">
+            <label>Шаг цены (стрелками ↑↓ в полях цены)</label>
+            <div class="step-toggle" id="g-stepToggle"></div>
+          </div>
+        </div>
+        <div id="g-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия плавает от курса EURUSD — сверь значение в терминале.</div>
+      </div>
+
+      <div class="panel grid-panel" id="g-gridPanel">
+        <p class="panel-title">Сетка</p>
+        <div class="grid-fields">
+          <div class="field"><label>Цена входа (ур. 1)</label><input type="number" id="g-gridEntryPrice" step="any"></div>
+          <div class="field"><label>Стоп (SL)</label><input type="number" id="g-gridStopPrice" step="any"></div>
+          <div class="field"><label>Кол-во уровней</label><input type="number" id="g-gridLevelsInput" min="2" step="1"></div>
+          <div class="field"><label>Объём (лот)</label><input type="number" id="g-gridVolume" step="any"></div>
+          <div class="field"><label>Риск ($)</label><input type="number" id="g-gridRisk" step="any"></div>
+          <div class="field"><label>Таргет ($)</label><input type="number" id="g-gridTargetAmount" step="any"></div>
+          <div class="field"><label>Цена таргета</label><input type="number" id="g-gridTargetPrice" step="any"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="apply-btn" id="g-generateGridBtn" style="flex:1;">Сгенерировать</button>
+          <button class="reset-btn" id="g-refreshGridBtn" style="flex:1;">Обновить</button>
+        </div>
+        <div class="dynamic-note" id="g-gridNote" style="display:none;"></div>
+        <div class="grid-levels-block">
+          <button class="grid-levels-head" id="g-gridLevelsToggle">
+            <span>Уровни (галочка — уже открыт)</span><span id="g-gridLevelsCaret">▾</span>
+          </button>
+          <div class="levels-head-row"><span></span><span>Цена</span><span>Лоты</span><span></span></div>
+          <div id="g-gridLevelsList" class="grid-levels-list"></div>
+          <button class="add-btn" id="g-addGridLevelBtn">+ добавить уровень</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col right-col">
+      <div class="right-split">
+        <div class="panel ladder-panel" id="g-ladderPanel">
+          <p class="panel-title">Лестница цен (уровни можно тащить мышью)</p>
+          <div class="ladder-box" id="g-ladderBox"></div>
+        </div>
+
+        <div class="panel history-panel">
+          <p class="panel-title">История расчётов</p>
+          <div class="hist-save-row">
+            <input type="text" id="g-saveNote" placeholder="Заметка">
+            <button class="apply-btn" id="g-saveCalcBtn">Сохранить</button>
+          </div>
+          <div class="hist-io"><button class="hist-btn" data-hio="export">⬇ Экспорт</button><button class="hist-btn" data-hio="import">⬆ Импорт</button></div>
+            <div id="g-historyList" class="history-list"></div>
+        </div>
+      </div>
+
+      <div class="panel results-panel" id="g-resultsPanel">
+        <p class="panel-title">Результат</p>
+        <div id="g-resultsBody"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+const instruments = {
+  GER40: { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊', leverage:10 },
+  XAUUSD:{ label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇', leverage:20 },
+  EURUSD:{ label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺', leverage:50 },
+  GBPUSD:{ label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧', leverage:50 },
+  US100: { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈', leverage:10 },
+};
+
+const RR_DEFS = [
+  {mult:1,   label:'RR 1:1',   color:'#F59E0B'},
+  {mult:1.3, label:'RR 1:1.3', color:'#A855F7'},
+  {mult:2,   label:'RR 1:2',   color:'#06B6D4'},
+  {mult:3,   label:'RR 1:3',   color:'#10B981'},
+  {mult:4,   label:'RR 1:4',   color:'#3B82F6'},
+  {mult:5,   label:'RR 1:5',   color:'#EC4899'},
+];
+const enabledRR = window.RR_ENABLED = {}; window.RR_DEFS = RR_DEFS; // global — only RR1:1 and RR1:2 on by default, shared across instruments
+RR_DEFS.forEach(d => enabledRR[d.mult] = (d.mult===1 || d.mult===2));
+function hexToRgba(hex, a){
+  const v = hex.replace('#','');
+  const r = parseInt(v.substring(0,2),16), g = parseInt(v.substring(2,4),16), b = parseInt(v.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+const el = id => document.getElementById(id);
+
+function getDefaultState(key){
+  const cfg = instruments[key];
+  return {
+    deposit: 100000, direction: 'long', slPrice: '',
+    pointValue: cfg.pointValue, commission: cfg.commission,
+    entries: [ {price:'', volume:''}, {price:'', volume:''} ],
+    targetRisk: '',
+    targetProfit: '',
+    targetPriceInput: '',
+    stopPriceInput: '',
+    customTargetMult: null,
+    gridEnabled: false,
+    gridLevels: 4,
+    priceStep: Math.pow(10, -cfg.decimals)
+  };
+}
+
+let currentInstr = 'GER40';
+const state = {};
+Object.keys(instruments).forEach(k => state[k] = getDefaultState(k));
+let sharedDeposit = 100000; // один депозит на все пары
+function stateWithDep(){ Object.values(state).forEach(x=>x.deposit=sharedDeposit); return state; }
+
+// number formatting: space thousands separator, dot decimal, no locale surprises
+function formatNumber(n, decimals){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  const neg = n<0;
+  n = Math.abs(n);
+  const fixed = n.toFixed(decimals);
+  let [intPart, decPart] = fixed.split('.');
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (neg?'-':'') + intPart + (decPart!==undefined ? '.'+decPart : '');
+}
+function fmt(n, d){ return formatNumber(n, d); }
+function fmtMoney(n){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  const neg = n<0;
+  return (neg?'-':'') + '$' + formatNumber(Math.abs(n), 2);
+}
+
+function buildTabs(){
+  const wrap = el('a-instrTabs');
+  wrap.innerHTML='';
+  Object.keys(instruments).forEach(key=>{
+    const cfg = instruments[key];
+    const b = document.createElement('button');
+    b.className = 'instr-tab' + (key===currentInstr ? ' active' : '');
+    if(key===currentInstr) b.style.background = cfg.color;
+    b.innerHTML = `<span>${cfg.icon}</span><span>${cfg.label}</span>`;
+    b.onclick = ()=>{ currentInstr = key; buildTabs(); renderForm(); renderCalc(); updateDirectionBg(); };
+    wrap.appendChild(b);
+  });
+}
+
+function buildRRToggles(){
+  const wrap = el('a-rrToggles');
+  wrap.innerHTML='';
+  RR_DEFS.forEach(d=>{
+    const label = document.createElement('label');
+    label.className = 'rr-toggle' + (enabledRR[d.mult] ? '' : ' off');
+    label.style.setProperty('--dot', d.color);
+    label.innerHTML = `<span class="dot" style="background:${d.color}"></span><input type="checkbox" ${enabledRR[d.mult] ? 'checked' : ''}><span>${d.label}</span>`;
+    label.querySelector('input').addEventListener('change', e=>{
+      enabledRR[d.mult] = e.target.checked;
+      document.dispatchEvent(new Event('rrchange'));
+    });
+    wrap.appendChild(label);
+  });
+}
+
+function stepOptions(decimals){
+  const base = Math.pow(10, -decimals);
+  return [1,10,100,1000].map(mult => +(base*mult).toFixed(decimals));
+}
+
+function buildStepToggle(){
+  const cfg = instruments[currentInstr];
+  const s = state[currentInstr];
+  const wrap = el('a-stepToggle');
+  wrap.innerHTML='';
+  stepOptions(cfg.decimals).forEach(val=>{
+    const b = document.createElement('button');
+    b.className = 'step-btn' + (Math.abs(val-s.priceStep)<1e-12 ? ' active' : '');
+    b.textContent = val.toFixed(cfg.decimals);
+    b.onclick = ()=>{ state[currentInstr].priceStep = val; renderForm(); };
+    wrap.appendChild(b);
+  });
+}
+
+function renderForm(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  el('a-deposit').value = sharedDeposit;
+  el('a-slPrice').value = s.slPrice;
+  el('a-slPrice').step = s.priceStep;
+  el('a-pointValue').value = s.pointValue;
+  el('a-commission').value = s.commission;
+  el('a-targetRisk').value = s.targetRisk;
+  el('a-targetRisk').step = s.priceStep;
+  el('a-targetProfit').value = s.targetProfit;
+  el('a-targetProfit').step = s.priceStep;
+  el('a-targetPriceInput').value = s.targetPriceInput;
+  el('a-targetPriceInput').step = s.priceStep;
+  el('a-stopPriceInput').value = s.stopPriceInput;
+  el('a-stopPriceInput').step = s.priceStep;
+  el('a-pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
+  el('a-dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('a-dirLong').classList.toggle('active', s.direction==='long');
+  el('a-dirShort').classList.toggle('active', s.direction==='short');
+  buildStepToggle();
+  buildEntryRows();
+}
+
+function buildEntryRows(){
+  const s = state[currentInstr];
+  const list = el('a-entriesList');
+  list.innerHTML='';
+  const grid = false;
+  s.entries.forEach((entry, i)=>{
+    const row = document.createElement('div');
+    row.className='entry-row';
+    const priceReadonly = grid && i!==0;
+    const volReadonly = grid;
+    row.innerHTML = `
+      <input type="number" step="${s.priceStep}" placeholder="цена" value="${entry.price}" data-i="${i}" data-f="price" ${priceReadonly?'readonly':''}>
+      <input type="number" step="${s.priceStep}" placeholder="лоты" value="${entry.volume}" data-i="${i}" data-f="volume" ${volReadonly?'readonly':''}>
+      <button class="rm-btn" data-i="${i}" ${grid?'style="visibility:hidden;"':''}>×</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i, f = e.target.dataset.f;
+      state[currentInstr].entries[i][f] = e.target.value;
+      renderCalc();
+    });
+  });
+  el('a-addEntry').style.display = grid ? 'none' : '';
+  list.querySelectorAll('.rm-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.i;
+      const s = state[currentInstr];
+      if(s.gridEnabled) return;
+      if(s.entries.length>1){ s.entries.splice(i,1); buildEntryRows(); renderCalc(); }
+    });
+  });
+}
+
+function getValidEntries(s){
+  return s.entries
+    .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
+    .filter(e=>!isNaN(e.price) && !isNaN(e.volume) && e.volume>0);
+}
+
+function calculate(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const deposit = parseFloat(sharedDeposit)||0;
+  const slPrice = parseFloat(s.slPrice);
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(slPrice) || deposit<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  const totalCommission = totalVolume * commissionPerLot;
+  const riskGross = distToSL * totalVolume * pointValue;
+  const riskNet = riskGross + totalCommission;
+  const riskPercent = riskNet/deposit*100;
+  const commissionDistance = (totalVolume*pointValue) > 0 ? totalCommission/(totalVolume*pointValue) : 0;
+
+  const rrLevels = RR_DEFS.map(lvl=>{
+    const priceTarget = s.direction==='long' ? avgEntry + distToSL*lvl.mult : avgEntry - distToSL*lvl.mult;
+    const priceAdjusted = s.direction==='long' ? priceTarget + commissionDistance : priceTarget - commissionDistance;
+    const grossProfit = distToSL*lvl.mult*totalVolume*pointValue;
+    const netProfit = grossProfit - totalCommission;
+    const netPercent = netProfit/deposit*100;
+    return {...lvl, priceTarget, priceAdjusted, netProfit, netPercent, dist:distToSL*lvl.mult};
+  });
+
+  let customLevel = null;
+  if(s.customTargetMult){
+    const mult = s.customTargetMult;
+    const priceTarget = s.direction==='long' ? avgEntry + distToSL*mult : avgEntry - distToSL*mult;
+    const priceAdjusted = s.direction==='long' ? priceTarget + commissionDistance : priceTarget - commissionDistance;
+    const grossProfit = distToSL*mult*totalVolume*pointValue;
+    const netProfit = grossProfit - totalCommission;
+    const netPercent = netProfit/deposit*100;
+    customLevel = { mult, label:'Цель RR 1:'+fmt(mult,2), color:'#F1F5F9', priceTarget, priceAdjusted, netProfit, netPercent, dist:distToSL*mult };
+  }
+
+  return { deposit, slPrice, avgEntry, totalVolume, distToSL, totalCommission, riskGross, riskNet, riskPercent, rrLevels, customLevel, decimals:cfg.decimals, direction:s.direction };
+}
+
+function calculateReverse(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const targetRisk = parseFloat(s.targetRisk);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(targetRisk) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const totalCommission = totalVolume*commissionPerLot;
+  const netForDistance = targetRisk - totalCommission;
+  if(netForDistance<=0) return { avgEntry, totalCommission, error:true };
+
+  const distance = netForDistance/(totalVolume*pointValue);
+  const slComputed = s.direction==='long' ? avgEntry-distance : avgEntry+distance;
+  return { avgEntry, totalCommission, distance, slComputed };
+}
+
+function renderReverse(){
+  const cfg = instruments[currentInstr];
+  const r = calculateReverse();
+  const box = el('a-reverseResult');
+  const btn = el('a-applyReverse');
+  if(!r){ box.innerHTML = '—'; box.classList.remove('err'); btn.disabled = true; return; }
+  if(r.error){
+    box.innerHTML = `комиссия ${fmtMoney(r.totalCommission)} больше риска`;
+    box.classList.add('err'); btn.disabled = true; return;
+  }
+  box.classList.remove('err');
+  box.innerHTML = `стоп<b>${fmt(r.slComputed, cfg.decimals)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].slPrice = r.slComputed.toFixed(cfg.decimals);
+    el('a-slPrice').value = state[currentInstr].slPrice;
+    renderCalc();
+  };
+}
+
+function calculateTarget(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const slPrice = parseFloat(s.slPrice);
+  const targetProfit = parseFloat(s.targetProfit);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(slPrice) || isNaN(targetProfit) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  if(distToSL<=0) return null;
+  const totalCommission = totalVolume*commissionPerLot;
+  const denom = distToSL*totalVolume*pointValue;
+  if(denom<=0) return null;
+
+  const requiredMult = (targetProfit+totalCommission)/denom;
+  if(requiredMult<=0) return { error:true };
+  const targetPrice = s.direction==='long' ? avgEntry+distToSL*requiredMult : avgEntry-distToSL*requiredMult;
+  return { requiredMult, targetPrice };
+}
+
+function renderTarget(){
+  const cfg = instruments[currentInstr];
+  const s = state[currentInstr];
+  const t = calculateTarget();
+  const box = el('a-targetResult');
+  const btn = el('a-applyTarget');
+  const clearBtn = el('a-clearTarget');
+  clearBtn.style.display = s.customTargetMult ? 'inline-block' : 'none';
+  if(!t){ box.innerHTML = '—'; box.classList.remove('err'); btn.disabled = true; return; }
+  if(t.error){ box.innerHTML = 'таргет недостижим'; box.classList.add('err'); btn.disabled = true; return; }
+  box.classList.remove('err');
+  box.innerHTML = `RR 1:${fmt(t.requiredMult,2)}<b>${fmt(t.targetPrice, cfg.decimals)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].customTargetMult = t.requiredMult;
+    renderCalc();
+  };
+  clearBtn.onclick = ()=>{
+    state[currentInstr].customTargetMult = null;
+    renderCalc();
+  };
+}
+
+function calculateTargetFromPrice(){
+  const s = state[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const priceVal = parseFloat(s.targetPriceInput);
+  const slPrice = parseFloat(s.slPrice);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(priceVal) || isNaN(slPrice) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  if(distToSL<=0) return null;
+
+  const dist = s.direction==='long' ? priceVal-avgEntry : avgEntry-priceVal;
+  if(dist<=0) return { error:true };
+
+  const mult = dist/distToSL;
+  const totalCommission = totalVolume*commissionPerLot;
+  const grossProfit = dist*totalVolume*pointValue;
+  const netProfit = grossProfit - totalCommission;
+  return { mult, netProfit };
+}
+
+function renderTargetPrice(){
+  const t = calculateTargetFromPrice();
+  const box = el('a-targetPriceResult');
+  const btn = el('a-applyTargetPrice');
+  if(!t){ box.innerHTML = '—'; box.classList.remove('err'); btn.disabled = true; return; }
+  if(t.error){ box.innerHTML = 'цена не в сторону профита'; box.classList.add('err'); btn.disabled = true; return; }
+  box.classList.remove('err');
+  box.innerHTML = `RR 1:${fmt(t.mult,2)}<b>${fmtMoney(t.netProfit)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].customTargetMult = t.mult;
+    renderCalc();
+  };
+}
+
+function calculateStopFromPrice(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const priceVal = parseFloat(s.stopPriceInput);
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(priceVal) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const totalCommission = totalVolume*commissionPerLot;
+  const dist = Math.abs(avgEntry - priceVal);
+  const riskNet = dist*totalVolume*pointValue + totalCommission;
+  return { riskNet, decimals:cfg.decimals, priceVal };
+}
+
+function renderStopPrice(){
+  const r = calculateStopFromPrice();
+  const box = el('a-stopPriceResult');
+  const btn = el('a-applyStopPrice');
+  if(!r){ box.innerHTML = '—'; btn.disabled = true; return; }
+  box.innerHTML = `риск<b>${fmtMoney(r.riskNet)}</b>`;
+  btn.disabled = false;
+  btn.onclick = ()=>{
+    state[currentInstr].slPrice = r.priceVal.toFixed(r.decimals);
+    el('a-slPrice').value = state[currentInstr].slPrice;
+    renderCalc();
+  };
+}
+
+// раскладка подписей: разводим в обе стороны, не выходим за панель, при нехватке места растим высоту (с прокруткой)
+window.ladderLayout=function(outer,pts){
+  const st=outer.scrollTop, H0=outer.clientHeight||400, G=3, n=pts.length;
+  const s=[...pts].sort((x,y)=>x.tp-y.tp);
+  const g=s.map((p,i)=>i?(s[i-1].h+p.h)/2+G:0);
+  const need=g.reduce((x,y)=>x+y,0)+s[0].h/2+s[n-1].h/2+8;
+  const H=Math.max(H0,Math.ceil(need));
+  const top=s[0].h/2+4, bot=H-s[n-1].h/2-4;
+  const y0=s.map(p=>p.tp*H/100);
+  const fwd=(y,lo)=>{ y=[...y]; y[0]=Math.max(y[0],lo); for(let i=1;i<n;i++) y[i]=Math.max(y[i],y[i-1]+g[i]); return y; };
+  const bwd=(y,hi)=>{ y=[...y]; y[n-1]=Math.min(y[n-1],hi); for(let i=n-2;i>=0;i--) y[i]=Math.min(y[i],y[i+1]-g[i+1]); return y; };
+  const yF=bwd(fwd(y0,top),bot), yB=fwd(bwd(y0,bot),top);
+  s.forEach((p,i)=>p.lp=((yF[i]+yB[i])/2)/H*100);
+  const box=document.createElement('div');
+  box.style.cssText=`position:relative;width:100%;height:100%;min-height:${Math.ceil(need)}px;`;
+  outer.innerHTML=''; outer.appendChild(box);
+  return {box,H,st};
+};
+window.ladderFinish=function(outer,H,st,focusPct){
+  if(!outer.clientHeight){ outer._ov=false; return; } // вкладка скрыта
+  if(H>outer.clientHeight){
+    outer.scrollTop = outer._ov ? st : Math.max(0,focusPct*H/100-outer.clientHeight/2);
+    outer._ov=true;
+  } else outer._ov=false;
+};
+let avgDrag = null;
+function renderWarn(){
+  const s=state[currentInstr], sl=parseFloat(s.slPrice), v=getValidEntries(s), w=el('a-warn');
+  let m='';
+  if(!isNaN(sl) && v.length && v.some(e=> s.direction==='long' ? e.price<=sl : e.price>=sl))
+    m='⚠ Стоп стоит не с той стороны от входа для '+(s.direction==='long'?'лонга':'шорта');
+  w.style.display=m?'block':'none'; w.textContent=m;
+}
+function renderLadder(res){
+  const panel=el('a-ladderPanel'), outer=el('a-ladderBox');
+  if(!res){ panel.style.display='none'; return; }
+  panel.style.display='flex';
+  const s=state[currentInstr];
+  const rr=res.rrLevels.filter(l=>enabledRR[l.mult]);
+  const profit=res.customLevel ? [...rr,res.customLevel] : rr;
+  const ents=s.entries.map((e,i)=>({i,price:parseFloat(e.price),volume:parseFloat(e.volume)})).filter(e=>!isNaN(e.price)&&e.volume>0);
+  const pts=[{label:'Стоп',price:res.slPrice,val:fmtMoney(-res.riskNet),hex:'#F2545B',drag:'sl'}];
+  if(ents.length>1) pts.push({label:'Ср.вход',price:res.avgEntry,val:fmt(res.totalVolume,2)+' лот',hex:'#38BDF8',dashed:true});
+  ents.forEach(e=>pts.push({label:ents.length>1?'Вх.'+(e.i+1):'Вход',price:e.price,val:fmt(e.volume,2)+' лот',hex:'#A78BFA',drag:'e',idx:e.i}));
+  profit.forEach(l=>pts.push({label:l.label,price:l.priceTarget,val:fmtMoney(l.netProfit),hex:l.color,drag:l===res.customLevel?'t':null}));
+  const pr=pts.map(p=>p.price);
+  let min=Math.min(...pr), max=Math.max(...pr);
+  if(avgDrag){ min=avgDrag.min; max=avgDrag.max; }
+  const span=(max-min)||1, PAD=8;
+  const pctOf=p=>PAD+(1-(p-min)/span)*(100-2*PAD);
+  pts.forEach(p=>{ p.tp=pctOf(p.price); p.compact=(p.drag==='e'&&ents.length>3); p.h=p.compact?18:28; });
+  const {box,H,st}=ladderLayout(outer,pts);
+
+  const zone=(p1,p2,c)=>{ const z=document.createElement('div'); z.className='tv-zone-bg';
+    z.style.cssText=`top:${Math.min(p1,p2)}%;height:${Math.abs(p1-p2)}%;background:${c};`; box.appendChild(z); };
+  zone(pctOf(res.slPrice),pctOf(res.avgEntry),'rgba(242,84,91,.14)');
+  if(profit.length){ const far=profit.reduce((x,y)=>y.mult>x.mult?y:x); zone(pctOf(far.priceTarget),pctOf(res.avgEntry),'rgba(34,195,166,.14)'); }
+
+  pts.forEach(p=>{
+    const d=p.drag?' draggable':'';
+    const line=document.createElement('div');
+    line.className='tv-line'+(p.dashed?' entry-line':'')+d;
+    line.style.top=p.tp+'%'; line.style.borderTopColor=hexToRgba(p.hex,1);
+    box.appendChild(line);
+    const st=`top:${p.lp}%;border-color:${hexToRgba(p.hex,1)};color:${hexToRgba(p.hex,1)};`;
+    const els=[['price',fmt(p.price,res.decimals)],['center',p.label],['value',p.val]].map(([c,txt])=>{
+      const x=document.createElement('div'); x.className='tv-pill '+c+d+(p.compact?' compact':''); x.style.cssText=st; x.textContent=txt; box.appendChild(x); return x; });
+    if(p.drag){
+      [line,...els].forEach(x=>x.addEventListener('pointerdown',e=>{
+        e.preventDefault();
+        avgDrag={kind:p.drag,idx:p.idx,box,min:min-span*.2,max:max+span*.2};
+        document.addEventListener('pointermove',onAvgMove);
+        document.addEventListener('pointerup',onAvgUp);
+        renderLadder(calculate());
+      }));
+    }
+  });
+  const fa=pctOf(res.avgEntry), ft=profit.length?pctOf(profit.reduce((x,y)=>y.mult>x.mult?y:x).priceTarget):fa;
+  ladderFinish(outer,H,st,(fa+ft)/2);
+}
+function onAvgMove(e){
+  const d=avgDrag; if(!d) return;
+  const r=el('a-ladderBox').firstElementChild.getBoundingClientRect(), PAD=8;
+  let pct=Math.max(PAD,Math.min(100-PAD,((e.clientY-r.top)/r.height)*100));
+  let price=d.min+(1-(pct-PAD)/(100-2*PAD))*(d.max-d.min);
+  const s=state[currentInstr], cfg=instruments[currentInstr];
+  const st=parseFloat(s.priceStep)||Math.pow(10,-cfg.decimals);
+  price=Math.round(price/st)*st;
+  const v=price.toFixed(cfg.decimals);
+  if(d.kind==='sl'){ s.slPrice=v; el('a-slPrice').value=v; }
+  else if(d.kind==='e'){
+    s.entries[d.idx].price=v;
+    const inp=document.querySelector(`#a-entriesList input[data-i="${d.idx}"][data-f="price"]`); if(inp) inp.value=v;
+  } else {
+    const res=calculate(); if(!res||!res.distToSL) return;
+    s.customTargetMult=Math.max(0.1,+(Math.abs(price-res.avgEntry)/res.distToSL).toFixed(2));
+  }
+  renderCalc();
+}
+function onAvgUp(){
+  avgDrag=null;
+  document.removeEventListener('pointermove',onAvgMove);
+  document.removeEventListener('pointerup',onAvgUp);
+  renderCalc();
+}
+
+function renderResults(res){
+  const body = el('a-resultsBody');
+  if(!res){
+    body.innerHTML = `<div class="empty-state">Заполни входы, стоп-цену и депозит</div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="result-top">
+      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry">${fmt(res.avgEntry,res.decimals)}</div></div>
+      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(res.totalVolume,2)}</div></div>
+      <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
+      <div class="stat"><div class="stat-lbl">Риск (${fmt(res.riskPercent,2)}%)</div><div class="stat-val risk">${fmtMoney(res.riskNet)}</div></div>
+    </div>
+    <table class="rr-table">
+      <thead><tr><th>Уровень</th><th>Цена</th><th>Цена с комиссией</th><th>Итого</th><th>% депо</th></tr></thead>
+      <tbody>
+        ${res.rrLevels.filter(l => enabledRR[l.mult]).concat(res.customLevel ? [res.customLevel] : []).map(l=>{
+          const hex = l.color;
+          const bg = hexToRgba(hex, 0.14);
+          const border = hexToRgba(hex, 0.9);
+          const label = hexToRgba(hex, 1);
+          return `
+          <tr style="background:${bg};">
+            <td style="border-left:3px solid ${border};padding-left:9px;color:${label};">${l.label}</td>
+            <td class="muted-cell">${fmt(l.priceTarget,res.decimals)}</td>
+            <td>${fmt(l.priceAdjusted,res.decimals)}</td>
+            <td class="net" style="color:${label};">${fmtMoney(l.netProfit)}</td>
+            <td class="net" style="color:${label};">${fmt(l.netPercent,2)}%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderDepositLevels(res){
+  const box = el('a-depositLevelsList');
+  if(!res){ box.innerHTML = `<div class="empty-state">Заполни входы, стоп-цену и депозит</div>`; return; }
+
+  const rows = [];
+  rows.push({ label:'Стоп', color:'#F2545B', value: res.deposit - res.riskNet });
+  res.rrLevels.filter(l => enabledRR[l.mult]).forEach(l=>{
+    rows.push({ label:l.label, color:l.color, value: res.deposit + l.netProfit });
+  });
+  if(res.customLevel){
+    rows.push({ label:'Таргет', color:res.customLevel.color, value: res.deposit + res.customLevel.netProfit });
+  }
+
+  box.innerHTML = rows.map(r=>`
+    <div class="dep-row">
+      <span class="dep-label"><span class="dep-dot" style="background:${r.color};"></span>${r.label}</span>
+      <span class="dep-val" style="color:${r.color};">${fmtMoney(r.value)}</span>
+    </div>`).join('');
+}
+
+function updateDirectionBg(){
+  if(!el('a-dirBgToggle').checked){ document.body.style.background = 'var(--bg)'; return; }
+  const dir = state[currentInstr].direction;
+  document.body.style.background = dir==='long' ? '#0C2620' : '#2A1013';
+}
+
+
+function renderCalc(){
+  const res = calculate();
+  renderWarn();
+  renderResults(res);
+  renderLadder(res);
+  renderReverse();
+  renderTarget();
+  renderTargetPrice();
+  renderStopPrice();
+  renderDepositLevels(res);
+}
+
+el('a-addEntry').addEventListener('click', ()=>{
+  state[currentInstr].entries.push({price:'', volume:''});
+  buildEntryRows();
+  renderCalc();
+});
+el('a-dirLong').addEventListener('click', ()=>{ state[currentInstr].direction='long'; renderForm(); renderCalc(); updateDirectionBg(); });
+el('a-dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='short'; renderForm(); renderCalc(); updateDirectionBg(); });
+['deposit','slPrice','pointValue','commission','targetRisk','targetProfit','targetPriceInput','stopPriceInput'].forEach(id=>{
+  el('a-'+id).addEventListener('input', e=>{
+    state[currentInstr][id] = e.target.value;
+    if(id==='deposit') sharedDeposit = e.target.value;
+    renderCalc();
+  });
+});
+el('a-resetBtn').addEventListener('click', ()=>{
+  state[currentInstr] = getDefaultState(currentInstr);
+  renderForm(); renderCalc();
+});
+el('a-dirBgToggle').addEventListener('change', updateDirectionBg);
+
+buildTabs();
+buildRRToggles();
+renderForm();
+renderCalc();
+updateDirectionBg();
+
+el('a-copyBtn').addEventListener('click',()=>{
+  const res=calculate(); if(!res) return;
+  const s=state[currentInstr], d=res.decimals;
+  const L=[`${currentInstr} ${s.direction==='long'?'ЛОНГ':'ШОРТ'}`,
+    'Входы: '+getValidEntries(s).map(e=>fmt(e.price,d)+' × '+fmt(e.volume,2)).join(', '),
+    `Ср.вход: ${fmt(res.avgEntry,d)} · ${fmt(res.totalVolume,2)} лот`,
+    `Стоп: ${fmt(res.slPrice,d)} · риск ${fmtMoney(res.riskNet)} (${fmt(res.riskPercent,2)}%)`];
+  res.rrLevels.filter(l=>enabledRR[l.mult]).forEach(l=>L.push(`${l.label}: ${fmt(l.priceTarget,d)} · ${fmtMoney(l.netProfit)}`));
+  const txt=L.join('\n'), btn=el('a-copyBtn');
+  const ok=()=>{ btn.textContent='✓ Скопировано'; setTimeout(()=>btn.textContent='Копировать',1200); };
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(ok).catch(()=>prompt('Скопируй расчёт:',txt));
+});
+
+document.addEventListener('rrchange',()=>{ buildRRToggles(); renderCalc(); });
+document.addEventListener('ladderrefresh',()=>renderCalc());
+el('a-reverseToggle').addEventListener('click',()=>{
+  const bl=el('a-reverseBlock'), o=bl.style.display==='none';
+  bl.style.display=o?'block':'none'; el('a-reverseCaret').textContent=o?'▾':'▸';
+});
+
+// мост для синхронизации с режимом «Сетка»
+const validList=s=>s.entries.filter(e=>e.price!==''&&parseFloat(e.volume)>0).map(e=>({price:e.price,volume:e.volume}));
+window.AvgAPI={
+  snapshot(){ return {state:stateWithDep(), instr:currentInstr, dirBg:el('a-dirBgToggle').checked}; },
+  restore(sn){
+    Object.keys(instruments).forEach(k=>{ if(sn.state&&sn.state[k]) state[k]=sn.state[k]; });
+    if(instruments[sn.instr]) currentInstr=sn.instr;
+    sharedDeposit=state[currentInstr].deposit||sharedDeposit;
+    if(sn.dirBg!==undefined) el('a-dirBgToggle').checked=sn.dirBg;
+    buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
+  },
+  get(){ const s=state[currentInstr]; return {instr:currentInstr, list:validList(s), sl:s.slPrice}; },
+  set(instr,list,sl,dir){
+    const s=state[instr]; if(!s) return false;
+    const key=l=>JSON.stringify(l.map(e=>[+e.price,+e.volume]));
+    const cur=validList(s);
+    if(list.length && cur.length && key(cur)!==key(list) && !confirm('Заменить входы в «Усреднении» для '+instr+'?')) return false;
+    if(list.length) s.entries=list.map(e=>({price:String(e.price),volume:String(e.volume)}));
+    if(sl!=='') s.slPrice=sl;
+    if(dir) s.direction=dir;
+    currentInstr=instr; buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
+    return true;
+  }
+};
+el('a-syncBtn').addEventListener('click',()=>{
+  const g=window.AvgAPI.get();
+  if(window.GridAPI.set(g.instr,g.list,g.sl)!==false) document.getElementById('modeGridBtn').click();
+});
+
+})();
+</script>
+<script>
+(function(){
+
+// Инструменты: ГЕР первым, затем золото, затем остальные
+const instruments = {
+  GER40:  { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊' },
+  XAUUSD: { label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇' },
+  EURUSD: { label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺' },
+  GBPUSD: { label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧' },
+  US100:  { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈' },
+};
+
+const el = id => document.getElementById(id);
+const enabledRR = window.RR_ENABLED, RR_DEFS = window.RR_DEFS;
+
+function getDefaultState(key){
+  const cfg = instruments[key];
+  return {
+    pointValue: cfg.pointValue,
+    commission: cfg.commission,
+    gridEntryPrice: '',
+    gridStopPrice: '',
+    gridLevels: 5,
+    gridVolume: '',
+    gridRisk: '',
+    gridTargetAmount: '',
+    gridTargetPrice: '',
+    gridLevelsData: [],
+    priceStep: Math.pow(10, -cfg.decimals)
+  };
+}
+
+let currentInstr = 'GER40';
+const state = {};
+Object.keys(instruments).forEach(k => state[k] = getDefaultState(k));
+
+// ---- форматирование чисел: пробел между тысячами, точка как разделитель ----
+function formatNumber(n, decimals){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  const neg = n<0;
+  n = Math.abs(n);
+  const fixed = n.toFixed(decimals);
+  let [intPart, decPart] = fixed.split('.');
+  intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (neg?'-':'') + intPart + (decPart!==undefined ? '.'+decPart : '');
+}
+function fmt(n, d){ return formatNumber(n, d); }
+function fmtMoney(n){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  const neg = n<0;
+  return (neg?'-':'') + '$' + formatNumber(Math.abs(n), 2);
+}
+function hexToRgba(hex, a){
+  const v = hex.replace('#','');
+  const r = parseInt(v.substring(0,2),16), g = parseInt(v.substring(2,4),16), b = parseInt(v.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ---- вкладки инструментов ----
+function buildTabs(){
+  const wrap = el('g-instrTabs');
+  wrap.innerHTML='';
+  Object.keys(instruments).forEach(key=>{
+    const cfg = instruments[key];
+    const b = document.createElement('button');
+    b.className = 'instr-tab' + (key===currentInstr ? ' active' : '');
+    if(key===currentInstr) b.style.background = cfg.color;
+    b.innerHTML = `<span>${cfg.icon}</span><span>${cfg.label}</span>`;
+    b.onclick = ()=>{ currentInstr = key; buildTabs(); renderForm(); renderCalc(); };
+    wrap.appendChild(b);
+  });
+}
+
+function stepOptions(decimals){
+  const base = Math.pow(10, -decimals);
+  return [1,10,100,1000].map(mult => +(base*mult).toFixed(decimals));
+}
+function buildStepToggle(){
+  const cfg = instruments[currentInstr];
+  const s = state[currentInstr];
+  const wrap = el('g-stepToggle');
+  wrap.innerHTML='';
+  stepOptions(cfg.decimals).forEach(val=>{
+    const b = document.createElement('button');
+    b.className = 'step-btn' + (Math.abs(val-s.priceStep)<1e-12 ? ' active' : '');
+    b.textContent = val.toFixed(cfg.decimals);
+    b.onclick = ()=>{ state[currentInstr].priceStep = val; renderForm(); };
+    wrap.appendChild(b);
+  });
+}
+
+function renderForm(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  el('g-pointValue').value = s.pointValue;
+  el('g-commission').value = s.commission;
+  el('g-pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
+  el('g-dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('g-gridEntryPrice').value = s.gridEntryPrice;
+  el('g-gridStopPrice').value = s.gridStopPrice;
+  el('g-gridLevelsInput').value = s.gridLevels;
+  el('g-gridVolume').value = s.gridVolume;
+  el('g-gridRisk').value = s.gridRisk;
+  el('g-gridTargetAmount').value = s.gridTargetAmount;
+  el('g-gridTargetPrice').value = s.gridTargetPrice;
+  buildStepToggle();
+  buildGridLevelRows();
+}
+
+// ==================== СЕТКА ====================
+
+// N уровней равномерно от входа до стопа; диапазон делится на N шагов —
+// последний уровень оказывается на шаг РАНЬШЕ стопа, а не на нём.
+function gridLevelPrices(entryPrice, stopPrice, n){
+  const prices = [];
+  for(let i=0;i<n;i++){
+    const t = i/n;
+    prices.push(entryPrice + (stopPrice-entryPrice)*t);
+  }
+  return prices;
+}
+function gridAvgDist(entryPrice, stopPrice, n){
+  const prices = gridLevelPrices(entryPrice, stopPrice, n);
+  const avgEntry = prices.reduce((a,b)=>a+b,0)/prices.length;
+  return { prices, avgEntry, distToSL: Math.abs(avgEntry-stopPrice) };
+}
+
+// «Обновить» — полный сброс: строит N новых уровней с нуля, стирая ручные правки.
+function resetGridLevels(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const entryPrice = parseFloat(s.gridEntryPrice);
+  const stopPrice = parseFloat(s.gridStopPrice);
+  const n = Math.max(2, parseInt(s.gridLevels) || 2);
+  const totalVolume = parseFloat(s.gridVolume);
+  const noteEl = el('g-gridNote');
+
+  if(isNaN(entryPrice) || isNaN(stopPrice) || entryPrice===stopPrice || isNaN(totalVolume) || totalVolume<=0){
+    noteEl.style.display = 'block';
+    noteEl.style.color = 'var(--short)';
+    noteEl.textContent = 'заполни цену входа, стоп и объём (или риск)';
+    return;
+  }
+  const perLevelVolume = totalVolume/n;
+  const prices = gridLevelPrices(entryPrice, stopPrice, n);
+  s.gridLevelsData = prices.map(p => ({ price:p.toFixed(cfg.decimals), volume:perLevelVolume.toFixed(2), active:true, touched:false }));
+  buildGridLevelRows();
+  renderCalc();
+}
+
+// «Сгенерировать» — пересчитывает с учётом текущего объёма/риска, но НЕ трогает
+// уровни, которые ты уже правил руками (touched). Остаток объёма (за вычетом
+// того, что уже "занято" ручными уровнями) делится поровну между нетронутыми.
+function generateGridLevels(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const noteEl = el('g-gridNote');
+
+  if(!s.gridLevelsData.length){ resetGridLevels(); return; }
+
+  const entryPrice = parseFloat(s.gridEntryPrice);
+  const stopPrice = parseFloat(s.gridStopPrice);
+  const totalVolume = parseFloat(s.gridVolume);
+  if(isNaN(entryPrice) || isNaN(stopPrice) || entryPrice===stopPrice || isNaN(totalVolume) || totalVolume<=0){
+    noteEl.style.display = 'block';
+    noteEl.style.color = 'var(--short)';
+    noteEl.textContent = 'заполни цену входа, стоп и объём (или риск)';
+    return;
+  }
+
+  const n = s.gridLevelsData.length;
+  const theoreticalPrices = gridLevelPrices(entryPrice, stopPrice, n);
+  const touchedVolSum = s.gridLevelsData.reduce((sum,l)=> l.touched ? sum+(parseFloat(l.volume)||0) : sum, 0);
+  const untouchedCount = s.gridLevelsData.filter(l=>!l.touched).length;
+  const remaining = Math.max(0, totalVolume - touchedVolSum);
+  const perUntouchedVolume = untouchedCount>0 ? remaining/untouchedCount : 0;
+
+  s.gridLevelsData.forEach((lvl,i)=>{
+    if(!lvl.touched){
+      lvl.price = theoreticalPrices[i].toFixed(cfg.decimals);
+      lvl.volume = perUntouchedVolume.toFixed(2);
+    }
+  });
+  buildGridLevelRows();
+  renderCalc();
+}
+
+function addGridLevel(){
+  const s = state[currentInstr];
+  s.gridLevelsData.push({ price:'', volume:'', active:true, touched:false });
+  buildGridLevelRows();
+  renderCalc();
+}
+
+function buildGridLevelRows(){
+  const s = state[currentInstr];
+  const list = el('g-gridLevelsList');
+  list.innerHTML = '';
+  (s.gridLevelsData || []).forEach((lvl, i)=>{
+    const row = document.createElement('div');
+    row.className = 'grid-level-row' + (lvl.active ? '' : ' inactive');
+    row.innerHTML = `
+      <input type="checkbox" data-i="${i}" ${lvl.active ? 'checked' : ''}>
+      <input type="number" step="${s.priceStep}" data-i="${i}" data-f="price" value="${lvl.price}">
+      <input type="number" step="any" data-i="${i}" data-f="volume" value="${lvl.volume}">
+      <button class="rm-btn" data-i="${i}">×</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const i = +e.target.dataset.i;
+      state[currentInstr].gridLevelsData[i].active = e.target.checked;
+      e.target.closest('.grid-level-row').classList.toggle('inactive', !e.target.checked);
+      renderCalc();
+    });
+  });
+  list.querySelectorAll('input[data-f="price"]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i;
+      const lvl = state[currentInstr].gridLevelsData[i];
+      lvl.price = e.target.value;
+      lvl.touched = true;
+      renderCalc();
+    });
+  });
+  list.querySelectorAll('input[data-f="volume"]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i;
+      cascadeVolume(i, e.target.value);
+    });
+  });
+  list.querySelectorAll('.rm-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.i;
+      const arr = state[currentInstr].gridLevelsData;
+      if(arr.length>1){ arr.splice(i,1); buildGridLevelRows(); renderCalc(); }
+    });
+  });
+}
+
+// Лот с уровня i копируется на все уровни НИЖЕ (i, i+1, ... конец) —
+// уровни выше i не трогаем. Все затронутые уровни помечаются "touched",
+// чтобы «Сгенерировать» их больше не перезаписывал.
+function cascadeVolume(i, value){
+  const s = state[currentInstr];
+  for(let j=i;j<s.gridLevelsData.length;j++){
+    s.gridLevelsData[j].volume = value;
+    s.gridLevelsData[j].touched = true;
+  }
+  document.querySelectorAll('#g-gridLevelsList .grid-level-row').forEach((row,j)=>{
+    if(j>i){
+      const volInput = row.querySelector('input[data-f="volume"]');
+      if(volInput) volInput.value = value;
+    }
+  });
+  renderCalc();
+}
+
+// Раз в секунду: если сумма лотов активных уровней превышает "Объём (лот)",
+// лишние нижние уровни мгновенно деактивируются.
+function enforceVolumeCap(){
+  const s = state[currentInstr];
+  const limit = parseFloat(s.gridVolume);
+  if(isNaN(limit) || limit<=0 || !s.gridLevelsData.length) return;
+  let sum = 0, changed = false;
+  for(let i=0;i<s.gridLevelsData.length;i++){
+    const lvl = s.gridLevelsData[i];
+    if(!lvl.active) continue;
+    const vol = parseFloat(lvl.volume)||0;
+    if(sum+vol > limit){ lvl.active = false; changed = true; }
+    else sum += vol;
+  }
+  if(changed){ buildGridLevelRows(); renderCalc(); }
+}
+setInterval(enforceVolumeCap, 1000);
+
+function getGridActiveLevels(){
+  const s = state[currentInstr];
+  return (s.gridLevelsData || [])
+    .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
+    .filter((e,i)=> s.gridLevelsData[i].active && !isNaN(e.price) && !isNaN(e.volume) && e.volume>0);
+}
+
+// Результат считается ТОЛЬКО по отмеченным галочкой уровням, средневзвешенно —
+// как во "Входах" обычного усреднения.
+function computeGridCalc(){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const stopPrice = parseFloat(s.gridStopPrice);
+  const pointValue = parseFloat(s.pointValue) || cfg.pointValue;
+  const commissionPerLot = parseFloat(s.commission) || cfg.commission;
+  const total = (s.gridLevelsData || []).length;
+
+  if(isNaN(stopPrice)) return { error:'нужен стоп (SL)', total };
+  const active = getGridActiveLevels();
+  if(active.length===0) return { error: total ? 'нет отмеченных уровней' : 'нажми «Сгенерировать»', total };
+
+  const totalVolume = active.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = active.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const direction = avgEntry > stopPrice ? 'long' : 'short';
+  const distToSL = Math.abs(avgEntry-stopPrice);
+  const totalCommission = totalVolume*commissionPerLot;
+  const riskNet = distToSL*totalVolume*pointValue + totalCommission;
+
+  let target = null;
+  const targetPrice = parseFloat(s.gridTargetPrice);
+  if(!isNaN(targetPrice)){
+    const dist = direction==='long' ? targetPrice-avgEntry : avgEntry-targetPrice;
+    if(dist>0){
+      const netProfit = dist*totalVolume*pointValue - totalCommission;
+      target = { price:targetPrice, netProfit };
+    }
+  }
+
+  const cd = totalVolume*pointValue>0 ? totalCommission/(totalVolume*pointValue) : 0;
+  const rrLevels = RR_DEFS.filter(d=>enabledRR[d.mult]).map(d=>{
+    const dist = distToSL*d.mult;
+    const pt = direction==='long' ? avgEntry+dist : avgEntry-dist;
+    return {...d, priceTarget:pt, priceAdjusted: direction==='long' ? pt+cd : pt-cd, netProfit: dist*totalVolume*pointValue-totalCommission};
+  });
+  return { avgEntry, totalVolume, distToSL, riskNet, direction, stopPrice, decimals:cfg.decimals, target, total, activeCount:active.length, rrLevels };
+}
+
+function gridRiskFromVolume(volume){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const entryPrice = parseFloat(s.gridEntryPrice);
+  const stopPrice = parseFloat(s.gridStopPrice);
+  const n = Math.max(2, parseInt(s.gridLevels) || 2);
+  const pointValue = parseFloat(s.pointValue) || cfg.pointValue;
+  const commissionPerLot = parseFloat(s.commission) || cfg.commission;
+  if(isNaN(entryPrice) || isNaN(stopPrice) || entryPrice===stopPrice || isNaN(volume) || volume<=0) return null;
+  const { distToSL } = gridAvgDist(entryPrice, stopPrice, n);
+  return volume*(distToSL*pointValue + commissionPerLot);
+}
+function gridVolumeFromRisk(risk){
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const entryPrice = parseFloat(s.gridEntryPrice);
+  const stopPrice = parseFloat(s.gridStopPrice);
+  const n = Math.max(2, parseInt(s.gridLevels) || 2);
+  const pointValue = parseFloat(s.pointValue) || cfg.pointValue;
+  const commissionPerLot = parseFloat(s.commission) || cfg.commission;
+  if(isNaN(entryPrice) || isNaN(stopPrice) || entryPrice===stopPrice || isNaN(risk) || risk<=0) return null;
+  const { distToSL } = gridAvgDist(entryPrice, stopPrice, n);
+  const denom = distToSL*pointValue + commissionPerLot;
+  return denom>0 ? risk/denom : null;
+}
+function gridTargetPriceFromAmount(amount){
+  const g = computeGridCalc();
+  if(g.error || isNaN(amount)) return null;
+  const cfg = instruments[currentInstr];
+  const pointValue = parseFloat(state[currentInstr].pointValue) || cfg.pointValue;
+  const totalCommission = g.totalVolume*(parseFloat(state[currentInstr].commission)||cfg.commission);
+  const dist = (amount+totalCommission)/(g.totalVolume*pointValue);
+  if(dist<=0) return null;
+  return g.direction==='long' ? g.avgEntry+dist : g.avgEntry-dist;
+}
+function gridTargetAmountFromPrice(price){
+  const g = computeGridCalc();
+  if(g.error || isNaN(price)) return null;
+  const cfg = instruments[currentInstr];
+  const pointValue = parseFloat(state[currentInstr].pointValue) || cfg.pointValue;
+  const totalCommission = g.totalVolume*(parseFloat(state[currentInstr].commission)||cfg.commission);
+  const dist = g.direction==='long' ? price-g.avgEntry : g.avgEntry-price;
+  if(dist<=0) return null;
+  return dist*g.totalVolume*pointValue - totalCommission;
+}
+
+function renderGridNote(g){
+  const noteEl = el('g-gridNote');
+  noteEl.style.display = 'block';
+  if(g.error){
+    noteEl.style.color = 'var(--short)';
+    noteEl.textContent = g.error;
+    return;
+  }
+  noteEl.style.color = '#F5A623';
+  let text = `активно ${g.activeCount}/${g.total} · объём ${fmt(g.totalVolume,2)} лот · риск ${fmtMoney(g.riskNet)}`;
+  if(g.target) text += ` · таргет ${fmtMoney(g.target.netProfit)}`;
+  noteEl.textContent = text;
+}
+
+function renderResults(g){
+  const body = el('g-resultsBody');
+  if(g.error){
+    body.innerHTML = `<div class="empty-state">${g.error==='нужен стоп (SL)' ? 'Заполни стоп и сгенерируй сетку' : g.error}</div>`;
+    return;
+  }
+  body.innerHTML = `
+    <div class="result-top">
+      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry">${fmt(g.avgEntry,g.decimals)}</div></div>
+      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(g.totalVolume,2)}</div></div>
+      <div class="stat"><div class="stat-lbl">Риск</div><div class="stat-val risk">${fmtMoney(g.riskNet)}</div></div>
+      <div class="stat"><div class="stat-lbl">Таргет</div><div class="stat-val ${g.target?'profit':''}">${g.target ? fmtMoney(g.target.netProfit) : '—'}</div></div>
+    </div>
+    <table class="rr-table">
+      <thead><tr><th>Уровень</th><th>Цена</th><th>Цена с комиссией</th><th>Итого</th></tr></thead>
+      <tbody>${(g.rrLevels||[]).map(l=>`<tr style="background:${hexToRgba(l.color,.14)};"><td style="border-left:3px solid ${hexToRgba(l.color,.9)};padding-left:9px;color:${l.color};">${l.label}</td><td class="muted-cell">${fmt(l.priceTarget,g.decimals)}</td><td>${fmt(l.priceAdjusted,g.decimals)}</td><td class="net" style="color:${l.color};">${fmtMoney(l.netProfit)}</td></tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// ---- лестница цен: рисуем + перетаскивание мышью + разведение подписей ----
+let gridDrag = null;
+
+function renderGridLadder(g){
+  const outer = el('g-ladderBox');
+  const levels = state[currentInstr].gridLevelsData || [];
+  outer.innerHTML='';
+  if(g.error || levels.length===0) return;
+
+  const points = [
+    {key:'sl', label:'Стоп', price:g.stopPrice, valText: fmtMoney(-g.riskNet), hex:'#F2545B', a:0.9, dashed:false, drag:false},
+    {key:'avg', label:'Ср.вход', price:g.avgEntry, valText: fmt(g.totalVolume,2)+' лот', hex:'#38BDF8', a:0.9, dashed:true, drag:false},
+    ...levels.map((lvl,i)=>({
+      key:'lv'+i, levelIndex:i,
+      label:'Ур.'+(i+1)+(lvl.active?'':' (×)'),
+      price: parseFloat(lvl.price), valText: fmt(parseFloat(lvl.volume),2)+' лот',
+      hex: lvl.active ? '#A855F7' : '#7C8494', a: lvl.active ? 0.85 : 0.35, dashed:false, drag:true
+    })).filter(p=>!isNaN(p.price))
+  ];
+  if(g.target){
+    points.push({key:'target', label:'Таргет', price:g.target.price, valText: fmtMoney(g.target.netProfit), hex:'#F1F5F9', a:0.9, dashed:false, drag:false});
+  }
+  (g.rrLevels||[]).forEach(l=>points.push({key:l.label,label:l.label,price:l.priceTarget,valText:fmtMoney(l.netProfit),hex:l.color,a:0.9,dashed:false,drag:false}));
+  if(points.length===0) return;
+
+  const prices = points.map(p=>p.price);
+  const min = gridDrag ? gridDrag.min : Math.min(...prices), max = gridDrag ? gridDrag.max : Math.max(...prices);
+  const span = (max-min) || 1;
+  const PAD = 8;
+  const pctOf = price => PAD + (1-(price-min)/span)*(100-2*PAD);
+
+  points.forEach(p=>{ p._truePct = pctOf(p.price); p.tp = p._truePct; p.compact = !!p.drag && levels.length>3; p.h = p.compact?18:28; });
+  const {box,H,st} = ladderLayout(outer, points);
+  points.forEach(p=>{ p._labelPct = p.lp; });
+
+  const entryPct = pctOf(g.avgEntry);
+  const riskPct = pctOf(g.stopPrice);
+  const redTop = Math.min(riskPct, entryPct);
+  const redHeight = Math.abs(riskPct - entryPct);
+  const zoneRisk = document.createElement('div');
+  zoneRisk.className='tv-zone-bg';
+  zoneRisk.style.cssText = `top:${redTop}%;height:${redHeight}%;background:rgba(242,84,91,.14);`;
+  box.appendChild(zoneRisk);
+
+  if(g.target){
+    const profitPct = pctOf(g.target.price);
+    const greenTop = Math.min(profitPct, entryPct);
+    const greenHeight = Math.abs(profitPct - entryPct);
+    const zoneProfit = document.createElement('div');
+    zoneProfit.className='tv-zone-bg';
+    zoneProfit.style.cssText = `top:${greenTop}%;height:${greenHeight}%;background:rgba(34,195,166,.14);`;
+    box.appendChild(zoneProfit);
+  }
+
+  points.forEach(p=>{
+    const linePct = p._truePct;
+    const labelPct = p._labelPct;
+
+    const lineColor = hexToRgba(p.hex, Math.min(p.a+0.1, 1));
+    const line = document.createElement('div');
+    line.className = 'tv-line' + (p.dashed ? ' entry-line' : '') + (p.drag ? ' draggable' : '');
+    line.style.top = linePct+'%';
+    line.style.borderTopColor = lineColor;
+    box.appendChild(line);
+
+    const borderColor = hexToRgba(p.hex, Math.min(p.a+0.15, 1));
+    const textColor = hexToRgba(p.hex, Math.min(p.a+0.3, 1));
+    const pillStyle = `top:${labelPct}%;border-color:${borderColor};color:${textColor};`;
+
+    const pPrice = document.createElement('div');
+    pPrice.className='tv-pill price' + (p.drag ? ' draggable' : '');
+    pPrice.style.cssText = pillStyle;
+    pPrice.textContent = fmt(p.price,g.decimals);
+    box.appendChild(pPrice);
+
+    const pCenter = document.createElement('div');
+    pCenter.className='tv-pill center' + (p.drag ? ' draggable' : '');
+    pCenter.style.cssText = pillStyle;
+    pCenter.textContent = p.label;
+    box.appendChild(pCenter);
+
+    const pValue = document.createElement('div');
+    pValue.className='tv-pill value' + (p.drag ? ' draggable' : '');
+    pValue.style.cssText = pillStyle;
+    pValue.textContent = p.valText;
+    box.appendChild(pValue);
+
+    if(p.compact) [pPrice,pCenter,pValue].forEach(x=>x.classList.add('compact'));
+    if(p.drag){
+      [line, pPrice, pCenter, pValue].forEach(elm=>{
+        elm.addEventListener('pointerdown', e=>{
+          e.preventDefault();
+          gridDrag = { levelIndex: p.levelIndex, min:min-span*.2, max:max+span*.2, span:span*1.4 };
+          document.addEventListener('pointermove', onGridDragMove);
+          document.addEventListener('pointerup', onGridDragUp);
+          renderCalc();
+        });
+      });
+    }
+  });
+  const fa = pctOf(g.avgEntry), rl = g.rrLevels||[];
+  const ft = g.target ? pctOf(g.target.price) : (rl.length ? pctOf(rl[rl.length-1].priceTarget) : fa);
+  ladderFinish(outer, H, st, (fa+ft)/2);
+}
+
+function onGridDragMove(e){
+  if(!gridDrag) return;
+  const { levelIndex, min, span } = gridDrag;
+  const rect = el('g-ladderBox').firstElementChild.getBoundingClientRect();
+  const PAD = 8;
+  let pct = ((e.clientY-rect.top)/rect.height)*100;
+  pct = Math.max(PAD, Math.min(100-PAD, pct));
+  const raw = 1-(pct-PAD)/(100-2*PAD);
+  const price = min + raw*span;
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const lvl = s.gridLevelsData[levelIndex];
+  if(!lvl) return;
+  lvl.price = price.toFixed(cfg.decimals);
+  lvl.touched = true;
+  const inp = document.querySelector(`#g-gridLevelsList .grid-level-row input[data-f="price"][data-i="${levelIndex}"]`);
+  if(inp) inp.value = lvl.price;
+  renderCalc();
+}
+function onGridDragUp(){
+  gridDrag = null; setTimeout(renderCalc,0);
+  document.removeEventListener('pointermove', onGridDragMove);
+  document.removeEventListener('pointerup', onGridDragUp);
+}
+
+function updateDirectionBg(g){
+  if(!el('g-dirBgToggle').checked){ document.body.style.background = 'var(--bg)'; return; }
+  if(!g || g.error){ document.body.style.background = 'var(--bg)'; return; }
+  document.body.style.background = g.direction==='long' ? '#0C2620' : '#2A1013';
+}
+
+function renderCalc(){
+  const g = computeGridCalc();
+  renderGridNote(g);
+  renderResults(g);
+  renderGridLadder(g);
+  updateDirectionBg(g);
+}
+
+// ---- события ----
+el('g-pointValue').addEventListener('input', e=>{ state[currentInstr].pointValue = e.target.value; renderCalc(); });
+el('g-commission').addEventListener('input', e=>{ state[currentInstr].commission = e.target.value; renderCalc(); });
+
+el('g-gridEntryPrice').addEventListener('input', e=>{ state[currentInstr].gridEntryPrice = e.target.value; });
+el('g-gridStopPrice').addEventListener('input', e=>{ state[currentInstr].gridStopPrice = e.target.value; renderCalc(); });
+el('g-gridLevelsInput').addEventListener('input', e=>{ state[currentInstr].gridLevels = e.target.value; });
+
+el('g-gridVolume').addEventListener('input', e=>{
+  const s = state[currentInstr];
+  s.gridVolume = e.target.value;
+  const risk = gridRiskFromVolume(parseFloat(e.target.value));
+  if(risk!==null){ s.gridRisk = risk.toFixed(2); el('g-gridRisk').value = s.gridRisk; }
+  renderCalc();
+});
+el('g-gridRisk').addEventListener('input', e=>{
+  const s = state[currentInstr];
+  s.gridRisk = e.target.value;
+  const vol = gridVolumeFromRisk(parseFloat(e.target.value));
+  if(vol!==null){ s.gridVolume = vol.toFixed(2); el('g-gridVolume').value = s.gridVolume; }
+  renderCalc();
+});
+
+el('g-gridTargetAmount').addEventListener('input', e=>{
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  s.gridTargetAmount = e.target.value;
+  const price = gridTargetPriceFromAmount(parseFloat(e.target.value));
+  if(price!==null){ s.gridTargetPrice = price.toFixed(cfg.decimals); el('g-gridTargetPrice').value = s.gridTargetPrice; }
+  renderCalc();
+});
+el('g-gridTargetPrice').addEventListener('input', e=>{
+  const s = state[currentInstr];
+  s.gridTargetPrice = e.target.value;
+  const amount = gridTargetAmountFromPrice(parseFloat(e.target.value));
+  if(amount!==null){ s.gridTargetAmount = amount.toFixed(2); el('g-gridTargetAmount').value = s.gridTargetAmount; }
+  renderCalc();
+});
+
+el('g-generateGridBtn').addEventListener('click', generateGridLevels);
+el('g-refreshGridBtn').addEventListener('click', resetGridLevels);
+el('g-addGridLevelBtn').addEventListener('click', addGridLevel);
+el('g-gridLevelsToggle').addEventListener('click', ()=>{
+  const list = el('g-gridLevelsList');
+  const collapsed = list.classList.toggle('collapsed');
+  el('g-gridLevelsCaret').textContent = collapsed ? '▸' : '▾';
+});
+
+el('g-resetBtn').addEventListener('click', ()=>{
+  state[currentInstr] = getDefaultState(currentInstr);
+  renderForm(); renderCalc();
+});
+el('g-dirBgToggle').addEventListener('change', ()=> renderCalc());
+
+
+buildTabs();
+renderForm();
+renderCalc();
+
+function buildRRToggles(){
+  const wrap=el('g-rrToggles'); wrap.innerHTML='';
+  RR_DEFS.forEach(d=>{
+    const label=document.createElement('label');
+    label.className='rr-toggle'+(enabledRR[d.mult]?'':' off');
+    label.style.setProperty('--dot',d.color);
+    label.innerHTML=`<span class="dot" style="background:${d.color}"></span><input type="checkbox" ${enabledRR[d.mult]?'checked':''}><span>${d.label}</span>`;
+    label.querySelector('input').addEventListener('change',e=>{ enabledRR[d.mult]=e.target.checked; document.dispatchEvent(new Event('rrchange')); });
+    wrap.appendChild(label);
+  });
+}
+document.addEventListener('rrchange',()=>{ buildRRToggles(); renderCalc(); });
+document.addEventListener('ladderrefresh',()=>renderCalc());
+buildRRToggles();
+
+el('g-copyBtn').addEventListener('click',()=>{
+  const g=computeGridCalc(); if(g.error) return;
+  const d=g.decimals;
+  const L=[`${currentInstr} ${g.direction==='long'?'ЛОНГ':'ШОРТ'} (сетка)`,
+    'Уровни: '+getGridActiveLevels().map(e=>fmt(e.price,d)+' × '+fmt(e.volume,2)).join(', '),
+    `Ср.вход: ${fmt(g.avgEntry,d)} · ${fmt(g.totalVolume,2)} лот`,
+    `Стоп: ${fmt(g.stopPrice,d)} · риск ${fmtMoney(g.riskNet)}`];
+  if(g.target) L.push(`Таргет: ${fmt(g.target.price,d)} · ${fmtMoney(g.target.netProfit)}`);
+  g.rrLevels.forEach(l=>L.push(`${l.label}: ${fmt(l.priceTarget,d)} · ${fmtMoney(l.netProfit)}`));
+  const txt=L.join('\n'), btn=el('g-copyBtn');
+  const ok=()=>{ btn.textContent='✓ Скопировано'; setTimeout(()=>btn.textContent='Копировать',1200); };
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(ok).catch(()=>prompt('Скопируй расчёт:',txt));
+});
+
+window.GridAPI={
+  snapshot(){ return {state:state, instr:currentInstr, dirBg:el('g-dirBgToggle').checked}; },
+  restore(sn){
+    Object.keys(instruments).forEach(k=>{ if(sn.state&&sn.state[k]) state[k]=sn.state[k]; });
+    if(instruments[sn.instr]) currentInstr=sn.instr;
+    if(sn.dirBg!==undefined) el('g-dirBgToggle').checked=sn.dirBg;
+    buildTabs(); renderForm(); renderCalc();
+  },
+  get(){
+    const s=state[currentInstr], g=computeGridCalc();
+    return {instr:currentInstr, sl:s.gridStopPrice||'', dir:g.error?null:g.direction,
+      list:(s.gridLevelsData||[]).filter(l=>l.active&&l.price!==''&&parseFloat(l.volume)>0).map(l=>({price:l.price,volume:l.volume}))};
+  },
+  set(instr,list,sl){
+    const s=state[instr]; if(!s) return false;
+    const cfg=instruments[instr];
+    const key=l=>JSON.stringify(l.map(e=>[+e.price,+e.volume]));
+    const cur=(s.gridLevelsData||[]).filter(l=>l.active).map(l=>({price:l.price,volume:l.volume}));
+    if(list.length && cur.length && key(cur)!==key(list) && !confirm('Заменить уровни сетки для '+instr+'?')) return false;
+    if(list.length){
+      s.gridLevelsData=list.map(e=>({price:(+e.price).toFixed(cfg.decimals),volume:(+e.volume).toFixed(2),active:true,touched:true}));
+      s.gridEntryPrice=s.gridLevelsData[0].price;
+      s.gridLevels=Math.max(2,list.length);
+      s.gridVolume=list.reduce((sum,e)=>sum+(+e.volume),0).toFixed(2);
+    }
+    if(sl!=='') s.gridStopPrice=sl;
+    currentInstr=instr;
+    const g=computeGridCalc(); if(!g.error) s.gridRisk=g.riskNet.toFixed(2);
+    buildTabs(); renderForm(); renderCalc();
+    return true;
+  }
+};
+el('g-syncBtn').addEventListener('click',()=>{
+  const g=window.GridAPI.get();
+  if(window.AvgAPI.set(g.instr,g.list,g.sl,g.dir)!==false) document.getElementById('modeAvgBtn').click();
+});
+
+})();
+</script>
+<script>
+(function(){
+const KEY='calc_history_v2', ICON={GER40:'📊',XAUUSD:'🥇',EURUSD:'🇪🇺',GBPUSD:'🇬🇧',US100:'📈'};
+const $=id=>document.getElementById(id);
+const curMode=()=>$('view-avg').classList.contains('hidden')?'grid':'avg';
+const rd=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'[]'); }catch(e){ return []; } };
+function wr(arr){
+  try{ localStorage.setItem(KEY,JSON.stringify(arr)); return true; }
+  catch(e){ alert('Не удалось сохранить: память браузера переполнена или недоступна. Сделайте экспорт и удалите старые записи.'); return false; }
+}
+const mkId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmtDate=iso=>{ try{ return new Date(iso).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Almaty'}); }catch(e){ return iso; } };
+
+// приведение записи любого формата к новому: {id,timestamp,note,tab,instrument,snap}
+function normalize(it){
+  if(!it || typeof it!=='object') return null;
+  if(it.snap && typeof it.snap==='object' && it.id){
+    const tab=it.tab==='grid'?'grid':'avg';
+    if(!it.snap[tab] || !it.snap[tab].state) return null;
+    return {id:String(it.id),timestamp:it.timestamp||new Date().toISOString(),note:it.note||'',tab,instrument:it.instrument||it.snap[tab].instr,snap:it.snap};
+  }
+  if(typeof it.stateJson==='string'){
+    let st; try{ st=JSON.parse(it.stateJson); }catch(e){ return null; }
+    const first=st && Object.values(st)[0]; if(!first || typeof first!=='object') return null;
+    const tab='gridLevelsData' in first ? 'grid' : 'avg';
+    return {id:String(it.id||mkId()),timestamp:it.timestamp||new Date().toISOString(),note:it.note||'',tab,instrument:it.instrument,
+      snap:{[tab]:{state:st,instr:it.instrument},mode:tab}};
+  }
+  return null;
+}
+function merge(base,incoming){
+  const map=new Map(base.map(x=>[x.id,x])); let added=0, skipped=0;
+  incoming.forEach(x=>{
+    const old=map.get(x.id);
+    if(!old){ map.set(x.id,x); added++; }
+    else if(new Date(x.timestamp)>new Date(old.timestamp)){ map.set(x.id,x); added++; }
+    else skipped++;
+  });
+  return {list:[...map.values()],added,skipped};
+}
+// разовая миграция старых историй
+(function migrate(){
+  try{
+    if(localStorage.getItem('calc_history_migrated')) return;
+    let list=rd(KEY);
+    ['calc_history','grid_calc_history'].forEach((k,n)=>{
+      const items=rd(k).map(x=>{ const r=normalize(x); if(r) r.tab=n?'grid':'avg'; return r&&(r.snap={[r.tab]:{state:JSON.parse(x.stateJson),instr:x.instrument},mode:r.tab},r); }).filter(Boolean);
+      list=merge(list,items).list;
+    });
+    if(wr(list)) localStorage.setItem('calc_history_migrated','1');
+  }catch(e){}
+})();
+
+function snapshot(){ return {avg:window.AvgAPI.snapshot(), grid:window.GridAPI.snapshot(), rr:Object.assign({},window.RR_ENABLED), mode:curMode()}; }
+function restore(sn){
+  if(sn.rr){ Object.keys(sn.rr).forEach(k=>window.RR_ENABLED[k]=sn.rr[k]); document.dispatchEvent(new Event('rrchange')); }
+  if(sn.avg) window.AvgAPI.restore(sn.avg);
+  if(sn.grid) window.GridAPI.restore(sn.grid);
+  $(sn.mode==='grid'?'modeGridBtn':'modeAvgBtn').click();
+}
+const noteOf=()=>($('a-saveNote').value||$('g-saveNote').value||'').trim();
+function clearNotes(){ $('a-saveNote').value=''; $('g-saveNote').value=''; }
+
+function render(){
+  const list=rd(KEY).sort((x,y)=>new Date(y.timestamp)-new Date(x.timestamp));
+  const html=list.length ? list.map(it=>{
+    const note=(it.note||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    return `<div class="hist-item"><div class="hist-item-main"><b>${ICON[it.instrument]||''} ${it.instrument||''}${note?' · '+note:''}<span class="hist-tag">${it.tab==='grid'?'Сетка':'Уср.'}</span></b><span>${fmtDate(it.timestamp)}</span></div>
+      <div class="hist-item-btns"><button class="hist-btn" data-act="load" data-id="${it.id}">Загрузить</button><button class="hist-btn" data-act="upd" data-id="${it.id}">Обновить</button><button class="hist-btn" data-act="del" data-id="${it.id}">Удалить</button></div></div>`;
+  }).join('') : '<div class="empty-state">Пока пусто</div>';
+  ['a-historyList','g-historyList'].forEach(id=>$(id).innerHTML=html);
+}
+function save(){
+  const tab=curMode(), sn=snapshot();
+  const arr=rd(KEY); arr.push({id:mkId(),timestamp:new Date().toISOString(),note:noteOf(),tab,instrument:sn[tab].instr,snap:sn});
+  if(wr(arr)){ clearNotes(); render(); }
+}
+function act(a,id){
+  const arr=rd(KEY), i=arr.findIndex(x=>x.id===id); if(i<0) return;
+  if(a==='load') restore(arr[i].snap);
+  else if(a==='del'){ if(wr(arr.filter(x=>x.id!==id))) render(); }
+  else if(a==='upd'){
+    const tab=curMode(), sn=snapshot();
+    arr[i]={id,timestamp:new Date().toISOString(),note:noteOf()||arr[i].note||'',tab,instrument:sn[tab].instr,snap:sn};
+    if(wr(arr)){ clearNotes(); render(); }
+  }
+}
+function exportHist(){
+  const items=rd(KEY);
+  if(!items.length){ alert('История пуста — экспортировать нечего'); return; }
+  const p=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Almaty',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+  const blob=new Blob([JSON.stringify({app:'trade-calc-history',version:2,exportedAt:new Date().toISOString(),items},null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='calc-history-'+p.replace(' ','_').replace(':','-')+'.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function parseImport(text){
+  const d=JSON.parse(text);
+  const raw=Array.isArray(d)?d:(d&&Array.isArray(d.items)?d.items:null);
+  if(!raw) throw new Error('bad');
+  const items=raw.map(normalize).filter(Boolean);
+  if(!items.length) throw new Error('empty');
+  return items;
+}
+function importHist(text){
+  let items; try{ items=parseImport(text); }catch(e){ alert('Файл не подходит: это не экспорт истории калькулятора или он повреждён.'); return; }
+  if(confirm('Найдено записей: '+items.length+'.\nOK — добавить к текущей истории (дубли пропускаются).\nОтмена — другие варианты.')){
+    const r=merge(rd(KEY),items);
+    if(wr(r.list)){ render(); alert('Добавлено: '+r.added+', пропущено: '+r.skipped); }
+  } else if(confirm('Заменить ВСЮ текущую историю импортированной? Текущие записи будут удалены.')){
+    if(wr(items)){ render(); alert('История заменена: '+items.length+' записей'); }
+  }
+}
+const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.style.display='none'; document.body.appendChild(inp);
+inp.addEventListener('change',()=>{ const f=inp.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importHist(String(r.result)); r.readAsText(f); inp.value=''; });
+document.querySelectorAll('[data-hio]').forEach(b=>b.addEventListener('click',()=>{ b.dataset.hio==='export' ? exportHist() : inp.click(); }));
+['a-saveCalcBtn','g-saveCalcBtn'].forEach(id=>$(id).addEventListener('click',save));
+['a-historyList','g-historyList'].forEach(id=>$(id).addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(b) act(b.dataset.act,b.dataset.id); }));
+window.Hist={read:()=>rd(KEY),parseImport,merge,importHist};
+render();
+})();
+</script>
+<script>
+(function(){
+  var btnAvg = document.getElementById('modeAvgBtn');
+  var btnGrid = document.getElementById('modeGridBtn');
+  var viewAvg = document.getElementById('view-avg');
+  var viewGrid = document.getElementById('view-grid');
+  function refresh(){ document.dispatchEvent(new Event('ladderrefresh')); }
+  var rt=null;
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(refresh,120); });
+  function showMode(mode){
+    var isAvg = mode==='avg';
+    viewAvg.classList.toggle('hidden', !isAvg);
+    viewGrid.classList.toggle('hidden', isAvg);
+    btnAvg.classList.toggle('active', isAvg);
+    btnGrid.classList.toggle('active', !isAvg);
+    try{ localStorage.setItem('calc_mode', mode); }catch(e){}
+    requestAnimationFrame(refresh);
+  }
+  btnAvg.addEventListener('click', function(){ showMode('avg'); });
+  btnGrid.addEventListener('click', function(){ showMode('grid'); });
+  var saved = null;
+  try{ saved = localStorage.getItem('calc_mode'); }catch(e){}
+  if(saved==='grid') showMode('grid');
+})();
+</script>
+</body>
+</html>
