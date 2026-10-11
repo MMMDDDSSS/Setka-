@@ -54,7 +54,7 @@ body{
 .reset-btn:hover{border-color:var(--short);color:var(--short);}
 
 /* main grid */
-.main{flex:1;min-height:0;display:grid;grid-template-columns:400px 1fr;grid-template-rows:1fr;gap:12px;}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:480px 1fr;grid-template-rows:1fr;gap:12px;}
 .col{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%;}
 
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;}
@@ -235,7 +235,7 @@ body{
 .reset-btn:hover{border-color:var(--short);color:var(--short);}
 
 /* main grid */
-.main{flex:1;min-height:0;display:grid;grid-template-columns:400px 1fr;grid-template-rows:1fr;gap:12px;}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:480px 1fr;grid-template-rows:1fr;gap:12px;}
 .col{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%;}
 
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;}
@@ -373,6 +373,30 @@ body{
 .tv-pill.compact{font-size:11px;padding:1px 7px;}
 .hist-io{display:flex;gap:6px;margin-bottom:6px;}
 .hist-tag{font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-left:6px;font-weight:600;}
+.rr-row-risk label,.rr-row-risk .reverse-result b{color:var(--short);}
+.rr-row-stop label,.rr-row-stop .reverse-result b{color:#FCA5A5;}
+.rr-row-target label,.rr-row-target .reverse-result b{color:var(--long);}
+.rr-row-targetprice label,.rr-row-targetprice .reverse-result b{color:#86EFAC;}
+#a-reverseBlock .reverse-result.err b{color:var(--short)!important;}
+.partial-row,.partials-head{grid-template-columns:20px 22px 1.25fr 0.75fr!important;gap:6px!important;}
+.partial-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--long);}
+.partial-row.off input[type=number]{opacity:.45;}
+.dynamic-note.count{color:var(--muted);margin-top:4px;}
+.phase-row{display:flex;gap:6px;align-items:end;flex-wrap:wrap;margin-bottom:8px;}
+.phase-row .field{flex:0 0 100px;}
+.phase-result{flex:1;min-width:110px;}
+.phase-price{font-size:14px;font-weight:700;color:var(--text);}
+.phase-sum{font-size:13px;font-weight:700;}
+.phase-sum.err{color:var(--short);font-size:12px;font-weight:400;}
+#a-reverseBlock .field input{font-size:13px;padding:5px 7px;}
+#a-reverseBlock .reverse-result{font-size:11px;}
+#a-reverseBlock .reverse-result b{font-size:15px;}
+.apply-btn.apply-sq{width:26px;height:26px;min-width:26px;flex:0 0 26px;padding:0;border-radius:6px;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.rr-target-combo{display:flex;gap:10px;flex-wrap:wrap;}
+.rr-sub{display:flex;gap:6px;align-items:end;flex:1 1 170px;min-width:150px;}
+.rr-sub .field{flex:0 0 72px;}
+.rr-sub .field label{font-size:9px;}
+.rr-sub .reverse-result{flex:1;min-width:0;}
 </style>
 </head>
 <body>
@@ -425,32 +449,52 @@ body{
 
       <div class="panel entries-panel">
         <p class="panel-title">Входы</p>
-        <div class="field" style="margin-bottom:8px;"><label>Стоп (SL)</label><input type="number" id="a-slPrice" step="any"></div>
         <div class="entries-head"><span>Цена</span><span>Лоты</span><span></span></div>
         <div class="entries-scroll"><div id="a-entriesList"></div></div>
         <button class="add-btn" id="a-addEntry">+ добавить вход</button>
-        <button class="grid-levels-head" id="a-reverseToggle" style="margin-top:6px;"><span>Риск → стоп / таргет</span><span id="a-reverseCaret">▸</span></button>
-        <div id="a-reverseBlock" style="display:none;max-height:50%;overflow-y:auto;">
-        <div class="reverse-row">
-          <div class="field"><label>Риск ($)</label><input type="number" id="a-targetRisk" step="any" placeholder="5000"></div>
-          <div class="reverse-result" id="a-reverseResult">—</div>
-          <button class="apply-btn" id="a-applyReverse" disabled>Применить</button>
+        <button class="grid-levels-head" id="a-phaseToggle" style="margin-top:6px;"><span>До фазы</span><span id="a-phaseCaret">▸</span></button>
+        <div id="a-phaseBlock" style="display:none;">
+        <div class="phase-row">
+          <div class="field"><input type="number" id="a-phaseInput" step="any" placeholder="108000"></div>
+          <div class="phase-result">
+            <div class="phase-price" id="a-phasePrice">—</div>
+            <div class="phase-sum" id="a-phaseSum">—</div>
+          </div>
+          <button class="apply-btn" id="a-applyPhase" disabled>Применить</button>
         </div>
-        <div class="reverse-row" style="margin-top:6px;">
-          <div class="field"><label>Цена стопа</label><input type="number" id="a-stopPriceInput" step="any" placeholder="1.15200"></div>
-          <div class="reverse-result" id="a-stopPriceResult">—</div>
-          <button class="apply-btn" id="a-applyStopPrice" disabled>Применить</button>
         </div>
-        <div class="reverse-row" style="margin-top:8px;">
-          <div class="field"><label>Таргет ($)</label><input type="number" id="a-targetProfit" step="any" placeholder="12000"></div>
-          <div class="reverse-result" id="a-targetResult">—</div>
-          <button class="apply-btn" id="a-applyTarget" disabled>Применить</button>
-          <button class="clear-btn" id="a-clearTarget" style="display:none;">×</button>
+        <button class="grid-levels-head" id="a-partialsToggle"><span>Частичное закрытие</span><span id="a-partialsCaret">▸</span></button>
+        <div id="a-partialsBlock" style="display:none;">
+          <div class="entries-head partials-head"><span></span><span></span><span>Цена</span><span>Объём</span></div>
+          <div id="a-partialsList"></div>
+          <button class="add-btn" id="a-addPartial">+ добавить закрытие</button>
+          <div class="dynamic-note count" id="a-partialsCount"></div>
         </div>
-        <div class="reverse-row" style="margin-top:6px;">
-          <div class="field"><label>Цена таргета</label><input type="number" id="a-targetPriceInput" step="any" placeholder="1.16000"></div>
-          <div class="reverse-result" id="a-targetPriceResult">—</div>
-          <button class="apply-btn" id="a-applyTargetPrice" disabled>Применить</button>
+        <button class="grid-levels-head" id="a-reverseToggle" style="margin-top:6px;"><span>Риск → стоп / таргет</span><span id="a-reverseCaret">▾</span></button>
+        <div id="a-reverseBlock" style="display:block;max-height:50%;overflow-y:auto;">
+        <div class="reverse-row rr-target-combo">
+          <div class="rr-sub rr-row-risk">
+            <div class="field"><label>Риск ($)</label><input type="number" id="a-targetRisk" step="any" placeholder="5000"></div>
+            <div class="reverse-result" id="a-reverseResult">—</div>
+            <button class="apply-btn apply-sq" id="a-applyReverse" disabled title="Применить">✓</button>
+          </div>
+          <div class="rr-sub rr-row-stop">
+            <div class="field"><label>Стоп (SL)</label><input type="number" id="a-slPrice" step="any"></div>
+            <div class="reverse-result" id="a-stopPriceResult">—</div>
+          </div>
+        </div>
+        <div class="reverse-row rr-target-combo" style="margin-top:8px;">
+          <div class="rr-sub rr-row-target">
+            <div class="field"><label>Таргет ($)</label><input type="number" id="a-targetProfit" step="any" placeholder=""></div>
+            <div class="reverse-result" id="a-targetResult">—</div>
+            <button class="apply-btn apply-sq" id="a-applyTarget" disabled title="Применить">✓</button>
+            <button class="clear-btn" id="a-clearTarget" style="display:none;">×</button>
+          </div>
+          <div class="rr-sub rr-row-targetprice">
+            <div class="field"><label>Цена таргета</label><input type="number" id="a-targetPriceInput" step="any" placeholder=""></div>
+            <div class="reverse-result" id="a-targetPriceResult">—</div>
+            <button class="apply-btn apply-sq" id="a-applyTargetPrice" disabled title="Применить">✓</button>
+          </div>
         </div>
         </div>
       </div>
@@ -611,16 +655,22 @@ function hexToRgba(hex, a){
 
 const el = id => document.getElementById(id);
 
+function autoRiskValue(){
+  const dep = parseFloat(sharedDeposit)||0;
+  const v = dep*0.01;
+  return v ? +v.toFixed(2) : '';
+}
 function getDefaultState(key){
   const cfg = instruments[key];
   return {
     deposit: 100000, direction: 'long', slPrice: '',
     pointValue: cfg.pointValue, commission: cfg.commission,
     entries: [ {price:'', volume:''}, {price:'', volume:''} ],
-    targetRisk: '',
+    targetRisk: '', targetRiskAuto: true,
+    slAuto: true,
     targetProfit: '',
     targetPriceInput: '',
-    stopPriceInput: '',
+    partials: [],
     customTargetMult: null,
     gridEnabled: false,
     gridLevels: 4,
@@ -632,7 +682,8 @@ let currentInstr = 'GER40';
 const state = {};
 Object.keys(instruments).forEach(k => state[k] = getDefaultState(k));
 let sharedDeposit = 100000; // один депозит на все пары
-function stateWithDep(){ Object.values(state).forEach(x=>x.deposit=sharedDeposit); return state; }
+let sharedPhase = 108000; // общая цена «до фазы» на все пары
+function stateWithDep(){ Object.values(state).forEach(x=>{ x.deposit=sharedDeposit; x.phaseTarget=sharedPhase; }); return state; }
 
 // number formatting: space thousands separator, dot decimal, no locale surprises
 function formatNumber(n, decimals){
@@ -708,20 +759,22 @@ function renderForm(){
   el('a-slPrice').step = s.priceStep;
   el('a-pointValue').value = s.pointValue;
   el('a-commission').value = s.commission;
+  if(s.targetRiskAuto!==false){ s.targetRisk = autoRiskValue(); }
   el('a-targetRisk').value = s.targetRisk;
   el('a-targetRisk').step = s.priceStep;
   el('a-targetProfit').value = s.targetProfit;
   el('a-targetProfit').step = s.priceStep;
   el('a-targetPriceInput').value = s.targetPriceInput;
   el('a-targetPriceInput').step = s.priceStep;
-  el('a-stopPriceInput').value = s.stopPriceInput;
-  el('a-stopPriceInput').step = s.priceStep;
+  el('a-phaseInput').value = sharedPhase;
   el('a-pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
   el('a-dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
   el('a-dirLong').classList.toggle('active', s.direction==='long');
   el('a-dirShort').classList.toggle('active', s.direction==='short');
   buildStepToggle();
   buildEntryRows();
+  buildPartialRows();
+  renderPhase();
 }
 
 function buildEntryRows(){
@@ -758,6 +811,53 @@ function buildEntryRows(){
   });
 }
 
+function buildPartialRows(){
+  const s = state[currentInstr];
+  const list = el('a-partialsList');
+  list.innerHTML='';
+  (s.partials||[]).forEach((p,i)=>{
+    const row = document.createElement('div');
+    row.className='entry-row partial-row'+(p.on===false?' off':'');
+    row.innerHTML = `
+      <input type="checkbox" data-i="${i}" data-f="on" ${p.on!==false?'checked':''} title="Учитывать в расчёте">
+      <button class="rm-btn" data-i="${i}">×</button>
+      <input type="number" step="${s.priceStep}" placeholder="цена" value="${p.price}" data-i="${i}" data-f="price">
+      <input type="number" step="${s.priceStep}" placeholder="лоты" value="${p.volume}" data-i="${i}" data-f="volume">`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('input[type=number]').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const i = +e.target.dataset.i, f = e.target.dataset.f;
+      state[currentInstr].partials[i][f] = e.target.value;
+      renderCalc();
+    });
+  });
+  list.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const i = +e.target.dataset.i;
+      state[currentInstr].partials[i].on = e.target.checked;
+      buildPartialRows();
+      renderCalc();
+    });
+  });
+  list.querySelectorAll('.rm-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const i = +e.target.dataset.i;
+      state[currentInstr].partials.splice(i,1);
+      buildPartialRows();
+      renderCalc();
+    });
+  });
+  const total=(s.partials||[]).length, active=(s.partials||[]).filter(p=>p.on!==false).length;
+  el('a-partialsCount').textContent = total ? `учтено ${active} из ${total}` : '';
+}
+
+function getValidPartials(s){
+  return (s.partials||[])
+    .filter(p=>p.on!==false)
+    .map(p=>({price:parseFloat(p.price), volume:parseFloat(p.volume)}))
+    .filter(p=>!isNaN(p.price) && !isNaN(p.volume) && p.volume>0);
+}
 function getValidEntries(s){
   return s.entries
     .map(e=>({price:parseFloat(e.price), volume:parseFloat(e.volume)}))
@@ -775,13 +875,22 @@ function calculate(){
   const valid = getValidEntries(s);
   if(valid.length===0 || isNaN(slPrice) || deposit<=0) return null;
 
-  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
-  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const originalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/originalVolume;
   const distToSL = Math.abs(avgEntry - slPrice);
+
+  const validPartials = getValidPartials(s);
+  const closedVolume = validPartials.reduce((sum,p)=>sum+p.volume,0);
+  const realizedProfit = validPartials.reduce((sum,p)=>{
+    const dist = s.direction==='long' ? (p.price-avgEntry) : (avgEntry-p.price);
+    return sum + (dist*p.volume*pointValue - p.volume*commissionPerLot);
+  },0);
+  const totalVolume = Math.max(0, originalVolume - closedVolume);
+
   const totalCommission = totalVolume * commissionPerLot;
   const riskGross = distToSL * totalVolume * pointValue;
   const riskNet = riskGross + totalCommission;
-  const riskPercent = riskNet/deposit*100;
+  const riskPercent = deposit>0 ? riskNet/deposit*100 : 0;
   const commissionDistance = (totalVolume*pointValue) > 0 ? totalCommission/(totalVolume*pointValue) : 0;
 
   const rrLevels = RR_DEFS.map(lvl=>{
@@ -804,7 +913,7 @@ function calculate(){
     customLevel = { mult, label:'Цель RR 1:'+fmt(mult,2), color:'#F1F5F9', priceTarget, priceAdjusted, netProfit, netPercent, dist:distToSL*mult };
   }
 
-  return { deposit, slPrice, avgEntry, totalVolume, distToSL, totalCommission, riskGross, riskNet, riskPercent, rrLevels, customLevel, decimals:cfg.decimals, direction:s.direction };
+  return { deposit, slPrice, avgEntry, totalVolume, originalVolume, closedVolume, realizedProfit, distToSL, totalCommission, riskGross, riskNet, riskPercent, rrLevels, customLevel, decimals:cfg.decimals, direction:s.direction };
 }
 
 function calculateReverse(){
@@ -916,6 +1025,48 @@ function calculateTargetFromPrice(){
   return { mult, netProfit };
 }
 
+function calculatePhase(){
+  // sharedPhase — целевая СУММА депозита (фаза роста счёта), не цена
+  const s = state[currentInstr];
+  const cfg = instruments[currentInstr];
+  const pointValue = parseFloat(s.pointValue)||0;
+  const commissionPerLot = parseFloat(s.commission)||0;
+  const slPrice = parseFloat(s.slPrice);
+  const phaseGoal = parseFloat(sharedPhase);
+  const deposit = parseFloat(sharedDeposit)||0;
+  const valid = getValidEntries(s);
+  if(valid.length===0 || isNaN(slPrice) || isNaN(phaseGoal) || pointValue<=0) return null;
+
+  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
+  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
+  const distToSL = Math.abs(avgEntry - slPrice);
+  if(distToSL<=0) return null;
+
+  const totalCommission = totalVolume*commissionPerLot;
+  const netNeeded = phaseGoal - deposit;          // сколько прибыли не хватает до фазы
+  const grossNeeded = netNeeded + totalCommission; // с учётом комиссии
+  const denom = totalVolume*pointValue;
+  if(denom<=0) return null;
+  const dist = grossNeeded/denom;
+  if(dist<=0) return { error:true };
+
+  const mult = dist/distToSL;
+  const targetPrice = s.direction==='long' ? avgEntry+dist : avgEntry-dist;
+  return { mult, targetPrice, grossNeeded, netNeeded };
+}
+function renderPhase(){
+  const cfg = instruments[currentInstr];
+  const p = calculatePhase();
+  const priceBox = el('a-phasePrice'), sumBox = el('a-phaseSum'), btn = el('a-applyPhase');
+  if(!p){ priceBox.textContent='—'; sumBox.textContent=''; sumBox.className='phase-sum'; btn.disabled=true; return; }
+  if(p.error){ priceBox.textContent='—'; sumBox.textContent='фаза уже достигнута'; sumBox.className='phase-sum err'; btn.disabled=true; return; }
+  priceBox.textContent = fmt(p.targetPrice, cfg.decimals);
+  sumBox.textContent = fmtMoney(p.grossNeeded);
+  sumBox.className = 'phase-sum' + (p.grossNeeded<0 ? ' err' : '');
+  sumBox.style.color = p.grossNeeded<0 ? '' : 'var(--long)';
+  btn.disabled = false;
+  btn.onclick = ()=>{ state[currentInstr].customTargetMult = p.mult; renderCalc(); };
+}
 function renderTargetPrice(){
   const t = calculateTargetFromPrice();
   const box = el('a-targetPriceResult');
@@ -931,35 +1082,11 @@ function renderTargetPrice(){
   };
 }
 
-function calculateStopFromPrice(){
-  const s = state[currentInstr];
-  const cfg = instruments[currentInstr];
-  const pointValue = parseFloat(s.pointValue)||0;
-  const commissionPerLot = parseFloat(s.commission)||0;
-  const priceVal = parseFloat(s.stopPriceInput);
-  const valid = getValidEntries(s);
-  if(valid.length===0 || isNaN(priceVal) || pointValue<=0) return null;
-
-  const totalVolume = valid.reduce((sum,e)=>sum+e.volume,0);
-  const avgEntry = valid.reduce((sum,e)=>sum+e.price*e.volume,0)/totalVolume;
-  const totalCommission = totalVolume*commissionPerLot;
-  const dist = Math.abs(avgEntry - priceVal);
-  const riskNet = dist*totalVolume*pointValue + totalCommission;
-  return { riskNet, decimals:cfg.decimals, priceVal };
-}
-
-function renderStopPrice(){
-  const r = calculateStopFromPrice();
+function renderStopPrice(res){
+  // живой риск для текущего стопа — поле уже и есть стоп, отдельной кнопки «Применить» не нужно
   const box = el('a-stopPriceResult');
-  const btn = el('a-applyStopPrice');
-  if(!r){ box.innerHTML = '—'; btn.disabled = true; return; }
-  box.innerHTML = `риск<b>${fmtMoney(r.riskNet)}</b>`;
-  btn.disabled = false;
-  btn.onclick = ()=>{
-    state[currentInstr].slPrice = r.priceVal.toFixed(r.decimals);
-    el('a-slPrice').value = state[currentInstr].slPrice;
-    renderCalc();
-  };
+  if(!res){ box.innerHTML = '—'; return; }
+  box.innerHTML = `риск<b>${fmtMoney(res.riskNet)}</b>`;
 }
 
 // раскладка подписей: разводим в обе стороны, не выходим за панель, при нехватке места растим высоту (с прокруткой)
@@ -1080,6 +1207,7 @@ function renderResults(res){
       <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(res.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск (${fmt(res.riskPercent,2)}%)</div><div class="stat-val risk">${fmtMoney(res.riskNet)}</div></div>
+      ${res.closedVolume>0 ? `<div class="stat"><div class="stat-lbl">Зафиксировано (${fmt(res.closedVolume,2)} лот)</div><div class="stat-val" style="color:${res.realizedProfit>=0?'var(--long)':'var(--short)'};">${fmtMoney(res.realizedProfit)}</div></div>` : ''}
     </div>
     <table class="rr-table">
       <thead><tr><th>Уровень</th><th>Цена</th><th>Цена с комиссией</th><th>Итого</th><th>% депо</th></tr></thead>
@@ -1130,7 +1258,18 @@ function updateDirectionBg(){
 }
 
 
+function applyAutoStop(){
+  const s = state[currentInstr];
+  if(s.slAuto===false) return;
+  const r = calculateReverse();
+  if(r && !r.error){
+    const cfg = instruments[currentInstr];
+    s.slPrice = r.slComputed.toFixed(cfg.decimals);
+    el('a-slPrice').value = s.slPrice;
+  }
+}
 function renderCalc(){
+  applyAutoStop();
   const res = calculate();
   renderWarn();
   renderResults(res);
@@ -1138,7 +1277,8 @@ function renderCalc(){
   renderReverse();
   renderTarget();
   renderTargetPrice();
-  renderStopPrice();
+  renderPhase();
+  renderStopPrice(res);
   renderDepositLevels(res);
 }
 
@@ -1149,12 +1289,38 @@ el('a-addEntry').addEventListener('click', ()=>{
 });
 el('a-dirLong').addEventListener('click', ()=>{ state[currentInstr].direction='long'; renderForm(); renderCalc(); updateDirectionBg(); });
 el('a-dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='short'; renderForm(); renderCalc(); updateDirectionBg(); });
-['deposit','slPrice','pointValue','commission','targetRisk','targetProfit','targetPriceInput','stopPriceInput'].forEach(id=>{
+['deposit','slPrice','pointValue','commission','targetRisk','targetProfit','targetPriceInput'].forEach(id=>{
   el('a-'+id).addEventListener('input', e=>{
     state[currentInstr][id] = e.target.value;
-    if(id==='deposit') sharedDeposit = e.target.value;
+    if(id==='slPrice'){
+      state[currentInstr].slAuto = (e.target.value==='');
+    }
+    if(id==='deposit'){
+      sharedDeposit = e.target.value;
+      if(state[currentInstr].targetRiskAuto!==false){ state[currentInstr].targetRisk = autoRiskValue(); el('a-targetRisk').value = state[currentInstr].targetRisk; }
+    }
+    if(id==='targetRisk'){
+      state[currentInstr].targetRiskAuto = (e.target.value==='');
+      if(state[currentInstr].targetRiskAuto){ state[currentInstr].targetRisk = autoRiskValue(); el('a-targetRisk').value = state[currentInstr].targetRisk; }
+    }
     renderCalc();
   });
+});
+el('a-phaseInput').addEventListener('input', e=>{
+  sharedPhase = e.target.value;
+  renderCalc();
+});
+el('a-addPartial').addEventListener('click', ()=>{
+  state[currentInstr].partials.push({price:'',volume:'',on:true});
+  buildPartialRows();
+});
+el('a-phaseToggle').addEventListener('click', ()=>{
+  const bl=el('a-phaseBlock'), o=bl.style.display==='none';
+  bl.style.display=o?'block':'none'; el('a-phaseCaret').textContent=o?'▾':'▸';
+});
+el('a-partialsToggle').addEventListener('click', ()=>{
+  const bl=el('a-partialsBlock'), o=bl.style.display==='none';
+  bl.style.display=o?'block':'none'; el('a-partialsCaret').textContent=o?'▾':'▸';
 });
 el('a-resetBtn').addEventListener('click', ()=>{
   state[currentInstr] = getDefaultState(currentInstr);
@@ -1196,6 +1362,7 @@ window.AvgAPI={
     Object.keys(instruments).forEach(k=>{ if(sn.state&&sn.state[k]) state[k]=sn.state[k]; });
     if(instruments[sn.instr]) currentInstr=sn.instr;
     sharedDeposit=state[currentInstr].deposit||sharedDeposit;
+    sharedPhase=state[currentInstr].phaseTarget||sharedPhase;
     if(sn.dirBg!==undefined) el('a-dirBgToggle').checked=sn.dirBg;
     buildTabs(); renderForm(); renderCalc(); updateDirectionBg();
   },
@@ -1631,7 +1798,7 @@ function renderGridLadder(g){
   if(g.error || levels.length===0) return;
 
   const points = [
-    {key:'sl', label:'Стоп', price:g.stopPrice, valText: fmtMoney(-g.riskNet), hex:'#F2545B', a:0.9, dashed:false, drag:false},
+    {key:'sl', label:'Стоп', price:g.stopPrice, valText: fmtMoney(-g.riskNet), hex:'#F2545B', a:0.9, dashed:false, drag:true, isSl:true},
     {key:'avg', label:'Ср.вход', price:g.avgEntry, valText: fmt(g.totalVolume,2)+' лот', hex:'#38BDF8', a:0.9, dashed:true, drag:false},
     ...levels.map((lvl,i)=>({
       key:'lv'+i, levelIndex:i,
@@ -1652,7 +1819,7 @@ function renderGridLadder(g){
   const PAD = 8;
   const pctOf = price => PAD + (1-(price-min)/span)*(100-2*PAD);
 
-  points.forEach(p=>{ p._truePct = pctOf(p.price); p.tp = p._truePct; p.compact = !!p.drag && levels.length>3; p.h = p.compact?18:28; });
+  points.forEach(p=>{ p._truePct = pctOf(p.price); p.tp = p._truePct; p.compact = !!p.drag && !p.isSl && levels.length>3; p.h = p.compact?18:28; });
   const {box,H,st} = ladderLayout(outer, points);
   points.forEach(p=>{ p._labelPct = p.lp; });
 
@@ -1665,8 +1832,10 @@ function renderGridLadder(g){
   zoneRisk.style.cssText = `top:${redTop}%;height:${redHeight}%;background:rgba(242,84,91,.14);`;
   box.appendChild(zoneRisk);
 
-  if(g.target){
-    const profitPct = pctOf(g.target.price);
+  const _pp = (g.rrLevels||[]).map(l=>l.priceTarget);
+  if(g.target) _pp.push(g.target.price);
+  if(_pp.length){
+    const profitPct = pctOf(g.direction==='long' ? Math.max(..._pp) : Math.min(..._pp));
     const greenTop = Math.min(profitPct, entryPct);
     const greenHeight = Math.abs(profitPct - entryPct);
     const zoneProfit = document.createElement('div');
@@ -1713,7 +1882,7 @@ function renderGridLadder(g){
       [line, pPrice, pCenter, pValue].forEach(elm=>{
         elm.addEventListener('pointerdown', e=>{
           e.preventDefault();
-          gridDrag = { levelIndex: p.levelIndex, min:min-span*.2, max:max+span*.2, span:span*1.4 };
+          gridDrag = { sl: !!p.isSl, levelIndex: p.levelIndex, min:min-span*.2, max:max+span*.2, span:span*1.4 };
           document.addEventListener('pointermove', onGridDragMove);
           document.addEventListener('pointerup', onGridDragUp);
           renderCalc();
@@ -1737,6 +1906,13 @@ function onGridDragMove(e){
   const price = min + raw*span;
   const s = state[currentInstr];
   const cfg = instruments[currentInstr];
+  if(gridDrag.sl){
+    const st = parseFloat(s.priceStep) || Math.pow(10,-cfg.decimals);
+    s.gridStopPrice = (Math.round(price/st)*st).toFixed(cfg.decimals);
+    el('g-gridStopPrice').value = s.gridStopPrice;
+    renderCalc();
+    return;
+  }
   const lvl = s.gridLevelsData[levelIndex];
   if(!lvl) return;
   lvl.price = price.toFixed(cfg.decimals);
