@@ -351,6 +351,43 @@ body{
 .mode-nav .mode-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-right:4px;}
 .mode-tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:3px;}
 .mode-tab{padding:7px 16px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.qc-spacer{flex:1;}
+.mx-wrap{display:flex;align-items:center;gap:6px;margin-left:14px;padding-left:14px;border-left:1px solid var(--border);}
+.mx-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+.mx-wrap b{font-size:15px;font-weight:700;color:var(--entry);white-space:nowrap;}
+.mx-wrap .mx-pct{font-size:10px;color:var(--muted);margin-left:3px;}
+.mx-wrap b.danger{color:var(--short);}
+.qc-reset{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);width:24px;height:24px;font-size:14px;cursor:pointer;align-self:center;line-height:1;}
+.qc-reset:hover{color:var(--text);border-color:var(--text);}
+#a-partialsCaret,#a-reverseCaret,#a-phaseCaret{font-size:16px;line-height:1;}
+.qc-title{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;margin-right:2px;align-self:center;}
+.qc-box{display:flex;align-items:end;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:6px 10px;flex-wrap:nowrap;}
+.ph-wrap{display:flex;align-items:center;gap:6px;margin-left:14px;padding-left:14px;border-left:1px solid var(--border);}
+.ph-toggle{display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;}
+.ph-box{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:6px 10px;}
+.ph-box input,.ph-box select{width:92px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:13px;padding:5px 6px;cursor:pointer;}
+.ph-box input::-webkit-outer-spin-button,.ph-box input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.ph-box input[type=number]{-moz-appearance:textfield;}
+.ph-out{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;}
+.ph-out.ph-green b{color:var(--long);}
+.partials-wrap{border:1px solid #A78BFA;border-radius:8px;padding:4px 6px;margin-top:8px;background:rgba(167,139,250,.06);}
+.entry-sync-mini{width:17px;height:17px;min-width:17px;flex:0 0 17px;font-size:9px;vertical-align:middle;margin-right:7px;}
+.entry-price-wrap{display:flex;gap:4px;align-items:center;min-width:0;}
+.entry-price-wrap input{flex:1;min-width:0;}
+.entry-sync-row-btn{flex:0 0 20px;width:20px;height:20px;font-size:11px;padding:0;}
+.partials-head-btn span:first-child{color:#A78BFA;}
+.qc-field{display:flex;flex-direction:column;gap:2px;}
+.qc-field label{font-size:9px;color:var(--muted);}
+.qc-field input{width:76px;background:var(--panel-2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:13px;padding:5px 6px;}
+.qc-field.qc-narrow input{width:60px;}
+.qc-field input::-webkit-outer-spin-button,.qc-field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.qc-field input[type=number]{-moz-appearance:textfield;}
+.qc-out{display:flex;flex-direction:column;gap:2px;min-width:70px;}
+.qc-out span{font-size:9px;color:var(--muted);}
+.qc-out b{font-size:14px;color:var(--entry);white-space:nowrap;}
+#qc-stop{color:var(--short);}
+.qc-out-row{display:flex;align-items:center;gap:4px;}
+.qc-out b.danger{color:var(--short);}
 .mode-tab.active{background:var(--entry);color:#04222E;}
 .mode-tab:hover:not(.active){color:var(--text);}
 .view-content{flex:1;min-height:0;}
@@ -393,11 +430,11 @@ body{
 #a-reverseBlock .field input{font-size:13px;padding:5px 7px;}
 #a-reverseBlock .reverse-result{font-size:11px;}
 #a-reverseBlock .reverse-result b{font-size:15px;}
-.apply-btn.apply-sq{width:26px;height:26px;min-width:26px;flex:0 0 26px;padding:0;border-radius:6px;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.apply-btn.apply-sq{width:20px;height:20px;min-width:20px;flex:0 0 20px;padding:0;border-radius:5px;font-size:11px;line-height:1;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;}
 .rr-target-combo{display:flex;gap:6px;flex-wrap:wrap;}
 .rr-row-stop .field,.rr-row-targetprice .field{flex:0 0 96px!important;}
 .pct-note{font-size:10px;color:var(--muted);margin-left:5px;white-space:nowrap;}
-.tv-pct{position:absolute;left:20%;transform:translate(-50%,0);font-size:9px;color:var(--muted);white-space:nowrap;pointer-events:none;}
+.tv-pct{position:absolute;left:20%;transform:translate(-50%,0);font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;pointer-events:none;}
 .rr-sub{display:flex;gap:6px;align-items:end;flex:1 1 150px;min-width:130px;}
 .rr-sub .field{flex:0 0 72px;}
 .rr-sub .field label{font-size:9px;}
@@ -411,6 +448,31 @@ body{
     <div class="mode-tabs">
       <button class="mode-tab active" id="modeAvgBtn">Усреднение</button>
       <button class="mode-tab" id="modeGridBtn">Сетка</button>
+    </div>
+    <div class="ph-wrap">
+      <button class="ph-toggle" id="a-phaseToggle">До фазы<span id="a-phaseCaret">▾</span></button>
+      <div class="ph-box" id="a-phaseBlock">
+        <input type="number" id="a-phaseInput" step="any" placeholder="108000">
+        <span class="ph-out"><b id="a-phasePrice">—</b></span>
+        <span class="ph-out ph-green"><b id="a-phaseSum">—</b></span>
+        <button class="apply-btn apply-sq" id="a-applyPhase" disabled title="Применить">✓</button>
+      </div>
+    </div>
+    <div class="mx-wrap" title="Максимальный лот, при котором маржа не превышает 69% депозита">
+      <span class="mx-label">Макс. лот</span>
+      <b id="mx-lots">—</b><span class="mx-pct" id="mx-pct"></span>
+    </div>
+    <div class="qc-spacer"></div>
+    <div class="qc-box" title="Быстрый расчёт лота по проценту или пунктам до стопа">
+      <span class="qc-title">Лот по риску:</span>
+      <button class="qc-reset" id="qc-reset" title="Сбросить это поле">↺</button>
+      <div class="qc-field"><label>вход</label><div class="entry-price-wrap"><input type="number" id="qc-entry" step="any"><button class="apply-btn apply-sq entry-sync-row-btn" id="qc-entrySync" title="Передать цену во «Входы»">✓</button></div></div>
+      <div class="qc-field qc-narrow"><label>%</label><input type="number" id="qc-pct" step="any" placeholder="2"></div>
+      <div class="qc-field qc-narrow"><label>пункты</label><input type="number" id="qc-pts" step="any" placeholder="500"></div>
+      <div class="qc-field qc-narrow"><label>риск ($)</label><input type="number" id="qc-risk" step="any" placeholder="1000"></div>
+      <div class="qc-out"><span>стоп</span><b id="qc-stop">—</b></div>
+      <div class="qc-out"><span>лот</span><div class="qc-out-row"><b id="qc-lots">—</b><button class="apply-btn apply-sq" id="qc-lotsSync" title="Передать лот во «Входы»">✓</button></div></div>
+      <div class="qc-out"><span>маржа</span><b id="qc-margin">—</b></div>
     </div>
   </div>
   <div class="view-content">
@@ -455,25 +517,15 @@ body{
       <div class="panel entries-panel">
         <p class="panel-title">Входы</p>
         <div class="entries-head entry-row-ck"><span></span><span>Цена</span><span>Лоты</span><span></span></div>
-        <div class="entries-scroll"><div id="a-entriesList"></div></div>
-        <button class="add-btn" id="a-addEntry">+ добавить вход</button>
-        <button class="grid-levels-head" id="a-phaseToggle" style="margin-top:6px;"><span>До фазы</span><span id="a-phaseCaret">▸</span></button>
-        <div id="a-phaseBlock" style="display:none;">
-        <div class="phase-row">
-          <div class="field"><input type="number" id="a-phaseInput" step="any" placeholder="108000"></div>
-          <div class="phase-result">
-            <div class="phase-price" id="a-phasePrice">—</div>
-            <div class="phase-sum" id="a-phaseSum">—</div>
+        <div class="entries-scroll"><div id="a-entriesList"></div><button class="add-btn" id="a-addEntry">+ добавить вход</button></div>
+        <div class="partials-wrap">
+          <button class="grid-levels-head partials-head-btn" id="a-partialsToggle"><span>Частичное закрытие</span><span id="a-partialsCaret">▸</span></button>
+          <div id="a-partialsBlock" style="display:none;">
+            <div class="entries-head partials-head"><span></span><span></span><span>Цена</span><span>Объём</span></div>
+            <div id="a-partialsList"></div>
+            <button class="add-btn" id="a-addPartial">+ добавить закрытие</button>
+            <div class="dynamic-note count" id="a-partialsCount"></div>
           </div>
-          <button class="apply-btn" id="a-applyPhase" disabled>Применить</button>
-        </div>
-        </div>
-        <button class="grid-levels-head" id="a-partialsToggle"><span>Частичное закрытие</span><span id="a-partialsCaret">▸</span></button>
-        <div id="a-partialsBlock" style="display:none;">
-          <div class="entries-head partials-head"><span></span><span></span><span>Цена</span><span>Объём</span></div>
-          <div id="a-partialsList"></div>
-          <button class="add-btn" id="a-addPartial">+ добавить закрытие</button>
-          <div class="dynamic-note count" id="a-partialsCount"></div>
         </div>
         <button class="grid-levels-head" id="a-reverseToggle" style="margin-top:6px;"><span>Риск → стоп / таргет</span><span id="a-reverseCaret">▾</span></button>
         <div id="a-reverseBlock" style="display:block;max-height:50%;overflow-y:auto;">
@@ -635,11 +687,11 @@ body{
 (function(){
 
 const instruments = {
-  GER40: { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊', leverage:10 },
-  XAUUSD:{ label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇', leverage:20 },
-  EURUSD:{ label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺', leverage:50 },
-  GBPUSD:{ label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧', leverage:50 },
-  US100: { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈', leverage:10 },
+  GER40: { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊', leverage:10, pipSize:0.1 },
+  XAUUSD:{ label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇', leverage:20, pipSize:0.1 },
+  EURUSD:{ label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺', leverage:50, pipSize:0.0001 },
+  GBPUSD:{ label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧', leverage:50, pipSize:0.0001 },
+  US100: { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈', leverage:10, pipSize:0.1 },
 };
 
 const RR_DEFS = [
@@ -792,9 +844,12 @@ function buildEntryRows(){
     row.className='entry-row entry-row-ck'+(entry.on===false?' off':'');
     const priceReadonly = grid && i!==0;
     const volReadonly = grid;
+    const priceCell = i===0
+      ? `<div class="entry-price-wrap"><input type="number" step="${s.priceStep}" placeholder="цена" value="${entry.price}" data-i="${i}" data-f="price" ${priceReadonly?'readonly':''}><button type="button" class="apply-btn apply-sq entry-sync-row-btn" title="Передать цену в «Лот по риску»" onclick="window.qcSetEntry && window.qcSetEntry('${currentInstr}', parseFloat(this.previousElementSibling.value))">✓</button></div>`
+      : `<input type="number" step="${s.priceStep}" placeholder="цена" value="${entry.price}" data-i="${i}" data-f="price" ${priceReadonly?'readonly':''}>`;
     row.innerHTML = `
       <input type="checkbox" data-i="${i}" data-f="on" ${entry.on!==false?'checked':''} title="Учитывать в расчёте">
-      <input type="number" step="${s.priceStep}" placeholder="цена" value="${entry.price}" data-i="${i}" data-f="price" ${priceReadonly?'readonly':''}>
+      ${priceCell}
       <input type="number" step="${s.priceStep}" placeholder="лоты" value="${entry.volume}" data-i="${i}" data-f="volume" ${volReadonly?'readonly':''}>
       <button class="rm-btn" data-i="${i}" ${grid?'style="visibility:hidden;"':''}>×</button>`;
     list.appendChild(row);
@@ -1100,7 +1155,7 @@ function renderTargetPrice(){
 function pctNote(price, avgEntry){
   if(!avgEntry) return '';
   const pct = Math.abs(price/avgEntry-1)*100;
-  return `<span class="pct-note">${fmt(pct,1)}%</span>`;
+  return `<span class="pct-note">${fmt(pct,2)}%</span>`;
 }
 function renderStopPrice(res){
   // живой риск для текущего стопа — поле уже и есть стоп, отдельной кнопки «Применить» не нужно
@@ -1181,7 +1236,7 @@ function renderLadder(res){
       const pctEl=document.createElement('div');
       pctEl.className='tv-pct';
       pctEl.style.top=`calc(${p.lp}% + ${p.h/2+4}px)`;
-      pctEl.textContent=fmt(pct,1)+'%';
+      pctEl.textContent=fmt(pct,2)+'%';
       box.appendChild(pctEl);
     }
     if(p.drag){
@@ -1231,7 +1286,7 @@ function renderResults(res){
   }
   body.innerHTML = `
     <div class="result-top">
-      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry">${fmt(res.avgEntry,res.decimals)}</div></div>
+      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry"><button class="apply-btn apply-sq entry-sync-mini" title="Передать в «Лот по риску»" onclick="window.qcSetEntry && window.qcSetEntry('${currentInstr}', ${res.avgEntry})">✓</button>${fmt(res.avgEntry,res.decimals)}</div></div>
       <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(res.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск (${fmt(res.riskPercent,2)}%)</div><div class="stat-val risk">${fmtMoney(res.riskNet)}</div></div>
@@ -1343,8 +1398,8 @@ el('a-addPartial').addEventListener('click', ()=>{
   buildPartialRows();
 });
 el('a-phaseToggle').addEventListener('click', ()=>{
-  const bl=el('a-phaseBlock'), o=bl.style.display==='none';
-  bl.style.display=o?'block':'none'; el('a-phaseCaret').textContent=o?'▾':'▸';
+  const bl=el('a-phaseBlock'), o=(bl.style.display==='none');
+  bl.style.display=o?'flex':'none'; el('a-phaseCaret').textContent=o?'▾':'▸';
 });
 el('a-partialsToggle').addEventListener('click', ()=>{
   const bl=el('a-partialsBlock'), o=bl.style.display==='none';
@@ -1385,6 +1440,13 @@ el('a-reverseToggle').addEventListener('click',()=>{
 // мост для синхронизации с режимом «Сетка»
 const validList=s=>s.entries.filter(e=>e.on!==false&&e.price!==''&&parseFloat(e.volume)>0).map(e=>({price:e.price,volume:e.volume}));
 window.AvgAPI={
+  quickCfg(){
+    const s = state[currentInstr], cfg = instruments[currentInstr];
+    const first = s.entries.find(e=>e.on!==false && e.price!=='');
+    return { pointValue: parseFloat(s.pointValue)||0, commission: parseFloat(s.commission)||0,
+      leverage: cfg.leverage||0, pipSize: cfg.pipSize||1, decimals: cfg.decimals, entryPrice: first?first.price:'',
+      deposit: sharedDeposit, instr: currentInstr, direction: s.direction||'long' };
+  },
   snapshot(){ return {state:stateWithDep(), instr:currentInstr, dirBg:el('a-dirBgToggle').checked}; },
   restore(sn){
     Object.keys(instruments).forEach(k=>{ if(sn.state&&sn.state[k]) state[k]=sn.state[k]; });
@@ -1805,7 +1867,7 @@ function renderResults(g){
   }
   body.innerHTML = `
     <div class="result-top">
-      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry">${fmt(g.avgEntry,g.decimals)}</div></div>
+      <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry"><button class="apply-btn apply-sq entry-sync-mini" title="Передать в «Лот по риску»" onclick="window.qcSetEntry && window.qcSetEntry('${currentInstr}', ${g.avgEntry})">✓</button>${fmt(g.avgEntry,g.decimals)}</div></div>
       <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(g.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск</div><div class="stat-val risk">${fmtMoney(g.riskNet)}</div></div>
       <div class="stat"><div class="stat-lbl">Таргет</div><div class="stat-val ${g.target?'profit':''}">${g.target ? fmtMoney(g.target.netProfit) : '—'}</div></div>
@@ -1911,7 +1973,7 @@ function renderGridLadder(g){
       const pctEl=document.createElement('div');
       pctEl.className='tv-pct';
       pctEl.style.top=`calc(${labelPct}% + ${p.h/2+4}px)`;
-      pctEl.textContent=fmt(pct,1)+'%';
+      pctEl.textContent=fmt(pct,2)+'%';
       box.appendChild(pctEl);
     }
     if(p.drag){
@@ -2066,6 +2128,14 @@ el('g-copyBtn').addEventListener('click',()=>{
 });
 
 window.GridAPI={
+  quickCfg(){
+    const s = state[currentInstr], cfg = instruments[currentInstr];
+    const ep = parseFloat(s.gridEntryPrice), sp = parseFloat(s.gridStopPrice);
+    const dir = (!isNaN(ep) && !isNaN(sp)) ? (sp<ep ? 'long' : 'short') : 'long';
+    return { pointValue: parseFloat(s.pointValue)||0, commission: parseFloat(s.commission)||0,
+      leverage: cfg.leverage||0, pipSize: cfg.pipSize||1, decimals: cfg.decimals, entryPrice: s.gridEntryPrice||'',
+      deposit: 0, instr: currentInstr, direction: dir };
+  },
   snapshot(){ return {state:state, instr:currentInstr, dirBg:el('g-dirBgToggle').checked}; },
   restore(sn){
     Object.keys(instruments).forEach(k=>{ if(sn.state&&sn.state[k]) state[k]=sn.state[k]; });
@@ -2244,11 +2314,148 @@ render();
     try{ localStorage.setItem('calc_mode', mode); }catch(e){}
     requestAnimationFrame(refresh);
   }
-  btnAvg.addEventListener('click', function(){ showMode('avg'); });
-  btnGrid.addEventListener('click', function(){ showMode('grid'); });
+  btnAvg.addEventListener('click', function(){ showMode('avg'); updateQuick(); });
+  btnGrid.addEventListener('click', function(){ showMode('grid'); updateQuick(); });
+
+  var qEntry = document.getElementById('qc-entry');
+  var qPct = document.getElementById('qc-pct');
+  var qPts = document.getElementById('qc-pts');
+  var qRisk = document.getElementById('qc-risk');
+  var qStop = document.getElementById('qc-stop');
+  var qLots = document.getElementById('qc-lots');
+  var qMargin = document.getElementById('qc-margin');
+  var qReset = document.getElementById('qc-reset');
+  var qEntrySync = document.getElementById('qc-entrySync');
+  var mxLots = document.getElementById('mx-lots');
+  var mxPct = document.getElementById('mx-pct');
+  var qcState = {};     // независимые поля по каждому активу: {entry,pct,pts,risk} — переносятся только по кнопке-галочке
+  var qcLastInstr = null;
+
+  function activeCfg(){
+    var isAvg = !viewAvg.classList.contains('hidden');
+    try{
+      var cfg = isAvg ? window.AvgAPI.quickCfg() : window.GridAPI.quickCfg();
+      if(!isAvg){ try{ cfg.deposit = window.AvgAPI.quickCfg().deposit; }catch(e){} }
+      return cfg;
+    }catch(e){ return null; }
+  }
+  function saveQcState(instr){
+    if(!instr) return;
+    qcState[instr] = { entry:qEntry.value, pct:qPct.value, pts:qPts.value, risk:qRisk.value };
+  }
+  function loadQcState(instr){
+    if(!qcState[instr]) qcState[instr] = { entry:'', pct:'', pts:'', risk:'1000' };
+    var s = qcState[instr];
+    qEntry.value = s.entry; qPct.value = s.pct; qPts.value = s.pts; qRisk.value = s.risk;
+  }
+  // явная передача цены из результата «Ср. вход» или из первого входа «Входы» в «Лот по риску» — по галочке, без автоматики
+  window.qcSetEntry = function(instr, price){
+    if(price==null || isNaN(price)) return;
+    var val = String(price);
+    if(!qcState[instr]) qcState[instr] = { entry:'', pct:'', pts:'', risk:'1000' };
+    qcState[instr].entry = val;
+    if(qcLastInstr===instr){ qEntry.value = val; updateQuick(); }
+  };
+  qEntrySync.addEventListener('click', function(){
+    var cfg = activeCfg();
+    if(!cfg || qEntry.value==='') return;
+    var isAvg = !viewAvg.classList.contains('hidden');
+    if(!isAvg) return;
+    var priceInp = document.querySelector('#a-entriesList input[data-i="0"][data-f="price"]');
+    if(priceInp){ priceInp.value = qEntry.value; priceInp.dispatchEvent(new Event('input', {bubbles:true})); }
+  });
+  var qLotsSync = document.getElementById('qc-lotsSync');
+  qLotsSync.addEventListener('click', function(){
+    var isAvg = !viewAvg.classList.contains('hidden');
+    if(!isAvg) return;
+    var lotsVal = parseFloat(qLots.textContent.replace('≈','').trim());
+    if(isNaN(lotsVal)) return;
+    var volInp = document.querySelector('#a-entriesList input[data-i="0"][data-f="volume"]');
+    if(volInp){ volInp.value = lotsVal.toFixed(2); volInp.dispatchEvent(new Event('input', {bubbles:true})); }
+  });
+  // лот = риск / (расстояние(%) * цена * $-за-пункт-лот + комиссия-за-лот) — формула не зависит от плеча,
+  // плечо используется ниже только для маржи, нужной под получившийся объём
+  function updateQuick(){
+    var cfg = activeCfg();
+    if(!cfg) return;
+    if(cfg.instr !== qcLastInstr){
+      saveQcState(qcLastInstr);
+      loadQcState(cfg.instr);
+      qcLastInstr = cfg.instr;
+    }
+    var entry = parseFloat(qEntry.value);
+    // максимальный лот для текущей пары, при котором маржа не превышает 69% депозита
+    var dep0 = parseFloat(cfg.deposit)||0;
+    if(!isNaN(entry) && entry>0 && cfg.pointValue>0 && cfg.leverage>0 && dep0>0){
+      var maxLots = (0.69*dep0*cfg.leverage)/(entry*cfg.pointValue);
+      var maxLotsR = +maxLots.toFixed(2);
+      mxLots.textContent = '≈ ' + maxLotsR.toFixed(2);
+      var actualMarginPct = (entry*cfg.pointValue*maxLotsR/cfg.leverage)/dep0*100;
+      mxPct.textContent = actualMarginPct.toFixed(2) + '%';
+    } else {
+      mxLots.textContent = '—'; mxPct.textContent = '';
+    }
+    // % и пункты синхронизируются: правит активное поле, второе пересчитывается от него
+    var pip = cfg.pipSize>0 ? cfg.pipSize : 1;
+    if(document.activeElement===qPts){
+      var ptsV = parseFloat(qPts.value);
+      if(!isNaN(entry) && entry>0 && !isNaN(ptsV)) qPct.value = (ptsV*pip/entry*100).toFixed(4).replace(/\.?0+$/,'');
+      else if(qPts.value==='') qPct.value='';
+    } else {
+      var pctV = parseFloat(qPct.value);
+      if(!isNaN(entry) && entry>0 && !isNaN(pctV)) qPts.value = (entry*pctV/100/pip).toFixed(2).replace(/\.?0+$/,'');
+      else if(qPct.value==='') qPts.value='';
+    }
+    var pct = parseFloat(qPct.value);
+    var risk = parseFloat(qRisk.value);
+    saveQcState(cfg.instr);
+    if(isNaN(entry) || isNaN(pct) || isNaN(risk) || pct<=0 || entry<=0 || cfg.pointValue<=0){
+      qStop.textContent = '—'; qLots.textContent = '—'; qMargin.textContent = '—'; qMargin.classList.remove('danger'); return;
+    }
+    var dist = entry*pct/100;
+    var stopPrice = cfg.direction==='short' ? entry+dist : entry-dist;
+    qStop.textContent = stopPrice.toFixed(cfg.decimals);
+    var denom = dist*cfg.pointValue + cfg.commission;
+    if(denom<=0){ qLots.textContent = '—'; qMargin.textContent = '—'; qMargin.classList.remove('danger'); return; }
+    var lots = risk/denom;
+    qLots.textContent = '≈ ' + lots.toFixed(2);
+    var notional = entry*cfg.pointValue*lots;
+    var margin = cfg.leverage>0 ? notional/cfg.leverage : 0;
+    var dep = parseFloat(cfg.deposit)||0;
+    var marginPct = dep>0 ? margin/dep*100 : 0;
+    qMargin.textContent = (dep>0 ? '$'+Math.round(margin).toLocaleString('ru-RU')+' · '+marginPct.toFixed(2)+'%' : '$'+Math.round(margin).toLocaleString('ru-RU'));
+    qMargin.classList.toggle('danger', dep>0 && marginPct>69);
+    // если лоты у первого входа «Усреднения» ещё не заполнены — подставляем расчётный лот
+    var isAvg = !viewAvg.classList.contains('hidden');
+    if(isAvg){
+      var volInp = document.querySelector('#a-entriesList input[data-i="0"][data-f="volume"]');
+      if(volInp && volInp.value===''){
+        volInp.value = lots.toFixed(2);
+        volInp.dispatchEvent(new Event('input', {bubbles:true}));
+      }
+    }
+  }
+  qReset.addEventListener('click', function(){
+    qEntry.value=''; qPct.value=''; qPts.value=''; qRisk.value='1000';
+    updateQuick();
+  });
+  qEntry.addEventListener('input', updateQuick);
+  qPct.addEventListener('input', updateQuick);
+  qPts.addEventListener('input', updateQuick);
+  qRisk.addEventListener('input', updateQuick);
+  document.addEventListener('input', function(e){
+    if(e.target===qEntry || e.target===qPct || e.target===qPts || e.target===qRisk) return;
+    updateQuick();
+  });
+  document.addEventListener('click', function(e){
+    if(e.target.closest('.qc-box')) return;
+    updateQuick();
+  });
+
   var saved = null;
   try{ saved = localStorage.getItem('calc_mode'); }catch(e){}
   if(saved==='grid') showMode('grid');
+  updateQuick();
 })();
 </script>
 </body>
