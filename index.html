@@ -145,10 +145,10 @@ body{
 .results-panel{flex:0 0 auto;}
 .result-top{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;}
 .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
-.stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
+.stat.entry-stat{display:flex;flex-direction:column;justify-content:center;}
 .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
 .stat-val{font-size:23px;font-weight:700;color:var(--text);}
-.stat-val.big-entry{font-size:34px;line-height:1.1;white-space:nowrap;}
+.stat-val.big-entry{font-size:24px;line-height:1.1;white-space:nowrap;}
 .stat-val.risk{color:var(--short);}
 .stat-val.comm{color:#F5A623;}
 .rr-table{width:100%;border-collapse:collapse;}
@@ -310,7 +310,8 @@ body{
 .hist-btn.load:hover{border-color:var(--entry);color:var(--entry);}
 .hist-btn.upd:hover{border-color:#F5A623;color:#F5A623;}
 .hist-btn.del:hover{border-color:var(--short);color:var(--short);}
-.ladder-panel{flex:1;min-height:0;display:flex;flex-direction:column;}
+.ladder-panel{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;}
+.ladder-corner-toggle{position:absolute;left:16px;bottom:10px;z-index:5;background:rgba(17,21,28,.85);padding:3px 8px;border-radius:6px;border:1px solid var(--border);}
 .ladder-box{position:relative;flex:1;min-height:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--panel-2);}
 .tv-zone-bg{position:absolute;left:20%;right:20%;}
 .tv-line{position:absolute;left:20%;right:20%;border-top:1px solid rgba(255,255,255,.14);}
@@ -328,10 +329,10 @@ body{
 .results-panel{flex:0 0 auto;}
 .result-top{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .stat{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
-.stat.entry-stat{grid-column:span 2;display:flex;flex-direction:column;justify-content:center;}
+.stat.entry-stat{display:flex;flex-direction:column;justify-content:center;}
 .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
 .stat-val{font-size:23px;font-weight:700;color:var(--text);}
-.stat-val.big-entry{font-size:34px;line-height:1.1;white-space:nowrap;}
+.stat-val.big-entry{font-size:24px;line-height:1.1;white-space:nowrap;}
 .stat-val.risk{color:var(--short);}
 .stat-val.profit{color:var(--long);}
 .empty-state{color:var(--muted);font-size:12px;text-align:center;padding:14px 0;}
@@ -434,7 +435,7 @@ body{
 .rr-target-combo{display:flex;gap:6px;flex-wrap:wrap;}
 .rr-row-stop .field,.rr-row-targetprice .field{flex:0 0 96px!important;}
 .pct-note{font-size:10px;color:var(--muted);margin-left:5px;white-space:nowrap;}
-.tv-pct{position:absolute;left:20%;transform:translate(-50%,0);font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;pointer-events:none;}
+.tv-pct{position:absolute;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;pointer-events:none;}
 .rr-sub{display:flex;gap:6px;align-items:end;flex:1 1 150px;min-width:130px;}
 .rr-sub .field{flex:0 0 72px;}
 .rr-sub .field label{font-size:9px;}
@@ -563,6 +564,7 @@ body{
         <div class="panel ladder-panel" id="a-ladderPanel" style="display:none;">
           <p class="panel-title">Лестница цен</p>
           <div class="ladder-box" id="a-ladderBox"></div>
+          <label class="toggle-label ladder-corner-toggle"><input type="checkbox" id="a-hideEntriesToggle"> скрыть входы</label>
         </div>
 
         <div class="panel history-panel">
@@ -657,6 +659,7 @@ body{
         <div class="panel ladder-panel" id="g-ladderPanel">
           <p class="panel-title">Лестница цен (уровни можно тащить мышью)</p>
           <div class="ladder-box" id="g-ladderBox"></div>
+          <label class="toggle-label ladder-corner-toggle"><input type="checkbox" id="g-hideEntriesToggle"> скрыть входы</label>
         </div>
 
         <div class="panel history-panel">
@@ -1207,7 +1210,7 @@ function renderLadder(res){
   const ents=s.entries.filter(e=>e.on!==false).map((e,i)=>({i,price:parseFloat(e.price),volume:parseFloat(e.volume)})).filter(e=>!isNaN(e.price)&&e.volume>0);
   const pts=[{label:'Стоп',price:res.slPrice,val:fmtMoney(-res.riskNet),hex:'#F2545B',drag:'sl'}];
   if(ents.length>1) pts.push({label:'Ср.вход',price:res.avgEntry,val:fmt(res.totalVolume,2)+' лот',hex:'#38BDF8',dashed:true});
-  ents.forEach(e=>pts.push({label:ents.length>1?'Вх.'+(e.i+1):'Вход',price:e.price,val:fmt(e.volume,2)+' лот',hex:'#A78BFA',drag:'e',idx:e.i}));
+  if(!el('a-hideEntriesToggle').checked) ents.forEach(e=>pts.push({label:ents.length>1?'Вх.'+(e.i+1):'Вход',price:e.price,val:fmt(e.volume,2)+' лот',hex:'#A78BFA',drag:'e',idx:e.i}));
   profit.forEach(l=>pts.push({label:l.label,price:l.priceTarget,val:fmtMoney(l.netProfit),hex:l.color,drag:l===res.customLevel?'t':null}));
   const pr=pts.map(p=>p.price);
   let min=Math.min(...pr), max=Math.max(...pr);
@@ -1233,9 +1236,13 @@ function renderLadder(res){
       const x=document.createElement('div'); x.className='tv-pill '+c+d+(p.compact?' compact':''); x.style.cssText=st; x.textContent=txt; box.appendChild(x); return x; });
     if(res.avgEntry && Math.abs(p.price-res.avgEntry)>1e-9){
       const pct=Math.abs(p.price/res.avgEntry-1)*100;
+      const priceTxt=fmt(p.price,res.decimals);
+      const fsz=p.compact?11:15;
+      const approxW=priceTxt.length*fsz*0.78+28;
       const pctEl=document.createElement('div');
       pctEl.className='tv-pct';
-      pctEl.style.top=`calc(${p.lp}% + ${p.h/2+4}px)`;
+      pctEl.style.top=`${p.lp}%`;
+      pctEl.style.left=`calc(20% - ${(approxW/2+18).toFixed(0)}px)`;
       pctEl.textContent=fmt(pct,2)+'%';
       box.appendChild(pctEl);
     }
@@ -1287,9 +1294,9 @@ function renderResults(res){
   body.innerHTML = `
     <div class="result-top">
       <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry"><button class="apply-btn apply-sq entry-sync-mini" title="Передать в «Лот по риску»" onclick="window.qcSetEntry && window.qcSetEntry('${currentInstr}', ${res.avgEntry})">✓</button>${fmt(res.avgEntry,res.decimals)}</div></div>
-      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(res.totalVolume,2)}</div></div>
-      <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск (${fmt(res.riskPercent,2)}%)</div><div class="stat-val risk">${fmtMoney(res.riskNet)}</div></div>
+      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val"><button class="apply-btn apply-sq entry-sync-mini" title="Передать в «Входы»" onclick="var vi=document.querySelector('#a-entriesList input[data-i=&quot;0&quot;][data-f=&quot;volume&quot;]'); if(vi){ vi.value='${fmt(res.totalVolume,2)}'; vi.dispatchEvent(new Event('input',{bubbles:true})); }">✓</button>${fmt(res.totalVolume,2)}</div></div>
+      <div class="stat"><div class="stat-lbl">Комиссия</div><div class="stat-val comm">${fmtMoney(res.totalCommission)}</div></div>
       ${res.closedVolume>0 ? `<div class="stat"><div class="stat-lbl">Зафиксировано (${fmt(res.closedVolume,2)} лот)</div><div class="stat-val" style="color:${res.realizedProfit>=0?'var(--long)':'var(--short)'};">${fmtMoney(res.realizedProfit)}</div></div>` : ''}
     </div>
     <table class="rr-table">
@@ -1344,6 +1351,7 @@ function updateDirectionBg(){
 function applyAutoStop(){
   const s = state[currentInstr];
   if(s.slAuto===false) return;
+  if(document.activeElement===el('a-slPrice')) return; // не мешаем удалять/печатать в самом поле
   const r = calculateReverse();
   if(r && !r.error){
     const cfg = instruments[currentInstr];
@@ -1384,7 +1392,6 @@ el('a-dirShort').addEventListener('click', ()=>{ state[currentInstr].direction='
     }
     if(id==='targetRisk'){
       state[currentInstr].targetRiskAuto = (e.target.value==='');
-      if(state[currentInstr].targetRiskAuto){ state[currentInstr].targetRisk = autoRiskValue(); el('a-targetRisk').value = state[currentInstr].targetRisk; }
     }
     renderCalc();
   });
@@ -1410,6 +1417,7 @@ el('a-resetBtn').addEventListener('click', ()=>{
   renderForm(); renderCalc();
 });
 el('a-dirBgToggle').addEventListener('change', updateDirectionBg);
+el('a-hideEntriesToggle').addEventListener('change', renderCalc);
 
 buildTabs();
 buildRRToggles();
@@ -1868,8 +1876,8 @@ function renderResults(g){
   body.innerHTML = `
     <div class="result-top">
       <div class="stat entry-stat"><div class="stat-lbl">Ср. вход</div><div class="stat-val big-entry"><button class="apply-btn apply-sq entry-sync-mini" title="Передать в «Лот по риску»" onclick="window.qcSetEntry && window.qcSetEntry('${currentInstr}', ${g.avgEntry})">✓</button>${fmt(g.avgEntry,g.decimals)}</div></div>
-      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(g.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Риск</div><div class="stat-val risk">${fmtMoney(g.riskNet)}</div></div>
+      <div class="stat"><div class="stat-lbl">Объём</div><div class="stat-val">${fmt(g.totalVolume,2)}</div></div>
       <div class="stat"><div class="stat-lbl">Таргет</div><div class="stat-val ${g.target?'profit':''}">${g.target ? fmtMoney(g.target.netProfit) : '—'}</div></div>
     </div>
     <table class="rr-table">
@@ -1890,12 +1898,12 @@ function renderGridLadder(g){
   const points = [
     {key:'sl', label:'Стоп', price:g.stopPrice, valText: fmtMoney(-g.riskNet), hex:'#F2545B', a:0.9, dashed:false, drag:true, isSl:true},
     {key:'avg', label:'Ср.вход', price:g.avgEntry, valText: fmt(g.totalVolume,2)+' лот', hex:'#38BDF8', a:0.9, dashed:true, drag:false},
-    ...levels.map((lvl,i)=>({
+    ...(el('g-hideEntriesToggle').checked ? [] : levels.map((lvl,i)=>({
       key:'lv'+i, levelIndex:i,
       label:'Ур.'+(i+1)+(lvl.active?'':' (×)'),
       price: parseFloat(lvl.price), valText: fmt(parseFloat(lvl.volume),2)+' лот',
       hex: lvl.active ? '#A855F7' : '#7C8494', a: lvl.active ? 0.85 : 0.35, dashed:false, drag:true
-    })).filter(p=>!isNaN(p.price))
+    })).filter(p=>!isNaN(p.price)))
   ];
   if(g.target){
     points.push({key:'target', label:'Таргет', price:g.target.price, valText: fmtMoney(g.target.netProfit), hex:'#F1F5F9', a:0.9, dashed:false, drag:false});
@@ -1970,9 +1978,13 @@ function renderGridLadder(g){
     if(p.compact) [pPrice,pCenter,pValue].forEach(x=>x.classList.add('compact'));
     if(g.avgEntry && Math.abs(p.price-g.avgEntry)>1e-9){
       const pct=Math.abs(p.price/g.avgEntry-1)*100;
+      const priceTxt=fmt(p.price,g.decimals);
+      const fsz=p.compact?11:15;
+      const approxW=priceTxt.length*fsz*0.78+28;
       const pctEl=document.createElement('div');
       pctEl.className='tv-pct';
-      pctEl.style.top=`calc(${labelPct}% + ${p.h/2+4}px)`;
+      pctEl.style.top=`${labelPct}%`;
+      pctEl.style.left=`calc(20% - ${(approxW/2+18).toFixed(0)}px)`;
       pctEl.textContent=fmt(pct,2)+'%';
       box.appendChild(pctEl);
     }
@@ -2092,6 +2104,7 @@ el('g-resetBtn').addEventListener('click', ()=>{
   renderForm(); renderCalc();
 });
 el('g-dirBgToggle').addEventListener('change', ()=> renderCalc());
+el('g-hideEntriesToggle').addEventListener('change', ()=> renderCalc());
 
 
 buildTabs();
@@ -2425,15 +2438,6 @@ render();
     var marginPct = dep>0 ? margin/dep*100 : 0;
     qMargin.textContent = (dep>0 ? '$'+Math.round(margin).toLocaleString('ru-RU')+' · '+marginPct.toFixed(2)+'%' : '$'+Math.round(margin).toLocaleString('ru-RU'));
     qMargin.classList.toggle('danger', dep>0 && marginPct>69);
-    // если лоты у первого входа «Усреднения» ещё не заполнены — подставляем расчётный лот
-    var isAvg = !viewAvg.classList.contains('hidden');
-    if(isAvg){
-      var volInp = document.querySelector('#a-entriesList input[data-i="0"][data-f="volume"]');
-      if(volInp && volInp.value===''){
-        volInp.value = lots.toFixed(2);
-        volInp.dispatchEvent(new Event('input', {bubbles:true}));
-      }
-    }
   }
   qReset.addEventListener('click', function(){
     qEntry.value=''; qPct.value=''; qPts.value=''; qRisk.value='1000';
