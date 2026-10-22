@@ -352,6 +352,12 @@ body{
 .mode-nav .mode-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-right:4px;}
 .mode-tabs{display:flex;gap:5px;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:3px;}
 .mode-tab{padding:7px 16px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+.field-row-3{display:flex;gap:7px;flex-wrap:wrap;grid-column:1/-1;}
+.field-row-3 .field{flex:1;min-width:0;}
+.field-row-3 .eur-rate-field{flex:2.2;min-width:230px;}
+.eur-rate-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.eur-rate-row input{flex:1 1 72px;min-width:60px;}
+.eur-fetch-btn{flex:0 0 auto;padding:7px 8px;font-size:11px;line-height:1;white-space:nowrap;}
 .qc-spacer{flex:1;}
 .mx-wrap{display:flex;align-items:center;gap:6px;margin-left:14px;padding-left:14px;border-left:1px solid var(--border);}
 .mx-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
@@ -504,14 +510,23 @@ body{
           <div class="field"><label>Направление</label>
             <div class="dir-toggle"><button class="dir-btn long" id="a-dirLong">Лонг</button><button class="dir-btn short" id="a-dirShort">Шорт</button></div>
           </div>
-          <div class="field"><label id="a-pointValueLabel">$/пункт/лот</label><input type="number" id="a-pointValue" step="any"></div>
-          <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="a-commission" step="any"></div>
+          <div class="field-row-3">
+            <div class="field"><label id="a-pointValueLabel">$/пункт/лот</label><input type="number" id="a-pointValue" step="any"></div>
+            <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="a-commission" step="any"></div>
+            <div class="field eur-rate-field" id="a-eurRateField" style="display:none;">
+              <label>Курс EURUSD</label>
+              <div class="eur-rate-row">
+                <input type="number" id="a-eurRate" step="0.0001" placeholder="1.0800">
+                <button type="button" class="apply-btn eur-fetch-btn" id="a-eurRateFetchLive" title="Live-Rates.com — живая котировка, обновляется каждую секунду">↻ Обновить курс</button>
+              </div>
+            </div>
+          </div>
           <div class="field" style="grid-column:1/-1;">
             <label>Шаг цены (стрелками ↑↓ в полях цены)</label>
             <div class="step-toggle" id="a-stepToggle"></div>
           </div>
         </div>
-        <div id="a-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия плавает от курса EURUSD — сверь значение в терминале.</div>
+        <div id="a-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия тоже плавает от курса EURUSD — сверь значение в терминале (курс пункта можно подтянуть кнопкой выше, курс комиссии — пока вручную).</div>
         <div id="a-warn" class="dynamic-note" style="display:none;color:var(--short);"></div>
       </div>
 
@@ -617,14 +632,23 @@ body{
       <div class="panel">
         <p class="panel-title">Параметры</p>
         <div class="cfg-grid">
-          <div class="field"><label id="g-pointValueLabel">$/пункт/лот</label><input type="number" id="g-pointValue" step="any"></div>
-          <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="g-commission" step="any"></div>
+          <div class="field-row-3">
+            <div class="field"><label id="g-pointValueLabel">$/пункт/лот</label><input type="number" id="g-pointValue" step="any"></div>
+            <div class="field"><label>Комиссия ($/лот)</label><input type="number" id="g-commission" step="any"></div>
+            <div class="field eur-rate-field" id="g-eurRateField" style="display:none;">
+              <label>Курс EURUSD</label>
+              <div class="eur-rate-row">
+                <input type="number" id="g-eurRate" step="0.0001" placeholder="1.0800">
+                <button type="button" class="apply-btn eur-fetch-btn" id="g-eurRateFetchLive" title="Live-Rates.com — живая котировка, обновляется каждую секунду">↻ Обновить курс</button>
+              </div>
+            </div>
+          </div>
           <div class="field" style="grid-column:1/-1;">
             <label>Шаг цены (стрелками ↑↓ в полях цены)</label>
             <div class="step-toggle" id="g-stepToggle"></div>
           </div>
         </div>
-        <div id="g-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия плавает от курса EURUSD — сверь значение в терминале.</div>
+        <div id="g-dynamicNote" class="dynamic-note" style="display:none;">⚠ GER40: комиссия тоже плавает от курса EURUSD — сверь значение в терминале (курс пункта можно подтянуть кнопкой выше, курс комиссии — пока вручную).</div>
       </div>
 
       <div class="panel grid-panel" id="g-gridPanel">
@@ -724,7 +748,7 @@ function getDefaultState(key){
   const cfg = instruments[key];
   return {
     deposit: 100000, direction: 'long', slPrice: '',
-    pointValue: cfg.pointValue, commission: cfg.commission,
+    pointValue: cfg.pointValue, commission: cfg.commission, eurRate: '',
     entries: [ {price:'', volume:'', on:true}, {price:'', volume:'', on:true} ],
     targetRisk: '', targetRiskAuto: true,
     slAuto: true,
@@ -829,6 +853,8 @@ function renderForm(){
   el('a-phaseInput').value = sharedPhase;
   el('a-pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
   el('a-dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('a-eurRateField').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('a-eurRate').value = s.eurRate || '';
   el('a-dirLong').classList.toggle('active', s.direction==='long');
   el('a-dirShort').classList.toggle('active', s.direction==='short');
   buildStepToggle();
@@ -1400,6 +1426,31 @@ el('a-phaseInput').addEventListener('input', e=>{
   sharedPhase = e.target.value;
   renderCalc();
 });
+el('a-eurRate').addEventListener('input', e=>{
+  state[currentInstr].eurRate = e.target.value;
+  const r = parseFloat(e.target.value);
+  // допущение: $/пункт/лот GER40 ≈ курс EURUSD (1 пункт = €1 за лот). Не подтверждено брокером — поле остаётся редактируемым.
+  if(!isNaN(r) && r>0){
+    state[currentInstr].pointValue = r.toFixed(2);
+    el('a-pointValue').value = state[currentInstr].pointValue;
+  }
+  renderCalc();
+});
+el('a-eurRateFetchLive').addEventListener('click', ()=>{
+  const btn = el('a-eurRateFetchLive');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = '…';
+  fetch('https://www.live-rates.com/rates')
+    .then(r=>r.json())
+    .then(arr=>{
+      const item = Array.isArray(arr) ? arr.find(x=>x.currency==='EUR/USD') : null;
+      const rate = item && parseFloat(item.bid || item.rate);
+      if(!rate) throw new Error('bad response');
+      el('a-eurRate').value = rate.toFixed(4);
+      el('a-eurRate').dispatchEvent(new Event('input', {bubbles:true}));
+    })
+    .catch(()=>{ alert('Не удалось получить живую котировку (Live-Rates.com). Возможно, лимит 3 запроса в час исчерпан, или браузер блокирует запрос к этому источнику. Проверьте соединение или впишите курс вручную.'); })
+    .finally(()=>{ btn.disabled = false; btn.textContent = old; });
+});
 el('a-addPartial').addEventListener('click', ()=>{
   state[currentInstr].partials.push({price:'',volume:'',on:true});
   buildPartialRows();
@@ -1489,11 +1540,11 @@ el('a-syncBtn').addEventListener('click',()=>{
 
 // Инструменты: ГЕР первым, затем золото, затем остальные
 const instruments = {
-  GER40:  { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊' },
-  XAUUSD: { label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇' },
-  EURUSD: { label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺' },
-  GBPUSD: { label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧' },
-  US100:  { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈' },
+  GER40:  { label:'GER40',  pointValue:1.17,   commission:0.61, decimals:2, dynamicComm:true,  color:'#F472B6', icon:'📊', leverage:10, pipSize:0.1 },
+  XAUUSD: { label:'XAUUSD', pointValue:100,    commission:6,    decimals:2, dynamicComm:false, color:'#D4AF37', icon:'🥇', leverage:20, pipSize:0.1 },
+  EURUSD: { label:'EURUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#4C8BF5', icon:'🇪🇺', leverage:50, pipSize:0.0001 },
+  GBPUSD: { label:'GBPUSD', pointValue:100000, commission:7,    decimals:5, dynamicComm:false, color:'#A855F7', icon:'🇬🇧', leverage:50, pipSize:0.0001 },
+  US100:  { label:'US100',  pointValue:1,      commission:0.60, decimals:2, dynamicComm:false, color:'#E8A33D', icon:'📈', leverage:10, pipSize:0.1 },
 };
 
 const el = id => document.getElementById(id);
@@ -1504,6 +1555,7 @@ function getDefaultState(key){
   return {
     pointValue: cfg.pointValue,
     commission: cfg.commission,
+    eurRate: '',
     gridEntryPrice: '',
     gridStopPrice: '',
     gridLevels: 5,
@@ -1582,6 +1634,8 @@ function renderForm(){
   el('g-commission').value = s.commission;
   el('g-pointValueLabel').textContent = (currentInstr==='EURUSD'||currentInstr==='GBPUSD') ? '$/1.0 цены/лот' : '$/пункт/лот';
   el('g-dynamicNote').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('g-eurRateField').style.display = cfg.dynamicComm ? 'block' : 'none';
+  el('g-eurRate').value = s.eurRate || '';
   el('g-gridEntryPrice').value = s.gridEntryPrice;
   el('g-gridStopPrice').value = s.gridStopPrice;
   el('g-gridLevelsInput').value = s.gridLevels;
@@ -2053,6 +2107,31 @@ function renderCalc(){
 
 // ---- события ----
 el('g-pointValue').addEventListener('input', e=>{ state[currentInstr].pointValue = e.target.value; renderCalc(); });
+el('g-eurRate').addEventListener('input', e=>{
+  state[currentInstr].eurRate = e.target.value;
+  const r = parseFloat(e.target.value);
+  // допущение: $/пункт/лот GER40 ≈ курс EURUSD (1 пункт = €1 за лот). Не подтверждено брокером — поле остаётся редактируемым.
+  if(!isNaN(r) && r>0){
+    state[currentInstr].pointValue = r.toFixed(2);
+    el('g-pointValue').value = state[currentInstr].pointValue;
+  }
+  renderCalc();
+});
+el('g-eurRateFetchLive').addEventListener('click', ()=>{
+  const btn = el('g-eurRateFetchLive');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = '…';
+  fetch('https://www.live-rates.com/rates')
+    .then(r=>r.json())
+    .then(arr=>{
+      const item = Array.isArray(arr) ? arr.find(x=>x.currency==='EUR/USD') : null;
+      const rate = item && parseFloat(item.bid || item.rate);
+      if(!rate) throw new Error('bad response');
+      el('g-eurRate').value = rate.toFixed(4);
+      el('g-eurRate').dispatchEvent(new Event('input', {bubbles:true}));
+    })
+    .catch(()=>{ alert('Не удалось получить живую котировку (Live-Rates.com). Возможно, лимит 3 запроса в час исчерпан, или браузер блокирует запрос к этому источнику. Проверьте соединение или впишите курс вручную.'); })
+    .finally(()=>{ btn.disabled = false; btn.textContent = old; });
+});
 el('g-commission').addEventListener('input', e=>{ state[currentInstr].commission = e.target.value; renderCalc(); });
 
 el('g-gridEntryPrice').addEventListener('input', e=>{ state[currentInstr].gridEntryPrice = e.target.value; });
